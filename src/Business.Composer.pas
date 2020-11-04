@@ -16,7 +16,7 @@ procedure BuildContainer(Container: TContainer);
 begin
   Container.RegisterType<IConnectionFactory, TConnectionFactory>().AsSingleton;
   Container.RegisterType<IOrderRepository, TOrderRepository>();
-  Container.RegisterType<ISubModule, TSubModule>();
+  Container.RegisterType<IOrderManager, TOrderManager>();
   Container.RegisterType<IMainModule, TMainModule>();
   Container.RegisterType<IApplicationRoot, TApplicationRoot>();
   // TODO: GlobalContainer.RegisterDecorator()

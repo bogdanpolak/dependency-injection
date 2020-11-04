@@ -22,15 +22,15 @@ type
   TMainModule = class(TInterfacedObject, IMainModule)
   private
     fOrderRepository: IOrderRepository;
-    fSubModule: ISubModule;
+    fSubModule: IOrderManager;
   public
     [Inject]
-    constructor Create(aSubModule: ISubModule;
+    constructor Create(aSubModule: IOrderManager;
       aOrderRepository: IOrderRepository);
     function ToString(): string; override;
   end;
 
-  TSubModule = class(TInterfacedObject, ISubModule)
+  TOrderManager = class(TInterfacedObject, IOrderManager)
   private
     fOrderRepository: IOrderRepository;
   public
@@ -94,7 +94,7 @@ end;
 
 { TMainModule }
 
-constructor TMainModule.Create(aSubModule: ISubModule;
+constructor TMainModule.Create(aSubModule: IOrderManager;
   aOrderRepository: IOrderRepository);
 begin
   self.fSubModule := aSubModule;
@@ -108,16 +108,16 @@ begin
     IndentString(fSubModule.ToString)]);
 end;
 
-{ TSubModule }
+{ TOrderManager }
 
-constructor TSubModule.Create(aOrderRepository: IOrderRepository);
+constructor TOrderManager.Create(aOrderRepository: IOrderRepository);
 begin
   self.fOrderRepository := aOrderRepository;
 end;
 
-function TSubModule.ToString: string;
+function TOrderManager.ToString: string;
 begin
-  Result := Format('SubModule [%s]',
+  Result := Format('OrderManager [%s]',
     [sLineBreak + IndentString(fOrderRepository.ToString())]);
 end;
 
