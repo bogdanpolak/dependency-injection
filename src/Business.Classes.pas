@@ -42,9 +42,20 @@ type
   TOrderRepository = class(TInterfacedObject, IOrderRepository)
   private
     fId: string;
+    fDatabaseConnection: IConnectionFactory;
   public
-    constructor Create();
+    [Inject]
+    constructor Create(aDatabaseConnection: IConnectionFactory);
     function ToString(): string; override;
+  end;
+
+  TConnectionFactory = class(TInterfacedObject, IConnectionFactory)
+  private
+    fConnection: TComponent;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    function GetConnection(): TComponent;
   end;
 
 implementation
@@ -112,14 +123,45 @@ end;
 
 { TOrderRepository }
 
-constructor TOrderRepository.Create;
+constructor TOrderRepository.Create(aDatabaseConnection: IConnectionFactory);
 begin
+  self.fDatabaseConnection := aDatabaseConnection;
   self.fId := chr(ord('A') + random(24));
 end;
 
 function TOrderRepository.ToString: string;
+var
+  connection: TComponent;
 begin
-  Result := Format('OrderRepository[%s]', [fId]);
+  connection := fDatabaseConnection.GetConnection();
+  Result := Format('OrderRepository[%s, %s]', [fId,connection.Name]);
+end;
+
+{ TConnectionFactory }
+
+var
+  ConnectionId: integer = 1;
+
+constructor TConnectionFactory.Create;
+begin
+  fConnection := nil;
+end;
+
+destructor TConnectionFactory.Destroy;
+begin
+  if fConnection = nil then
+    fConnection.Free;
+end;
+
+function TConnectionFactory.GetConnection: TComponent;
+begin
+  if fConnection = nil then
+  begin
+    fConnection := TComponent.Create(nil);
+    fConnection.Name := Format('Connection%.4d', [ConnectionId]);
+    ConnectionId := ConnectionId + 1;
+  end;
+  Result := fConnection;
 end;
 
 end.

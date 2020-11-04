@@ -14,6 +14,7 @@ implementation
 
 procedure BuildContainer(Container: TContainer);
 begin
+  Container.RegisterType<IConnectionFactory, TConnectionFactory>().AsSingleton;
   Container.RegisterType<IOrderRepository, TOrderRepository>();
   Container.RegisterType<ISubModule, TSubModule>();
   Container.RegisterType<IDataModule, TDataModule>();
