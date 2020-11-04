@@ -21,6 +21,11 @@ type
     function ToString(): string;
   end;
 
+  ICustomerManager = interface
+    ['{59BF0CAF-08DA-459F-8495-16794A7B959E}']
+    function ToString(): string;
+  end;
+
   IOrderRepository = interface
     ['{12A1A68F-7D17-4DFD-B320-864D42CC314F}']
     function ToString(): string;

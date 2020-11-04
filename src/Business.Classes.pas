@@ -12,25 +12,35 @@ uses
 type
   TApplicationRoot = class(TInterfacedObject, IApplicationRoot)
   private
-    fDataModule: IMainModule;
+    fMainModule: IMainModule;
   public
     [Inject]
-    constructor Create(aDataModule: IMainModule);
+    constructor Create(aMainModule: IMainModule);
     function ToString(): string; override;
   end;
 
   TMainModule = class(TInterfacedObject, IMainModule)
   private
     fOrderRepository: IOrderRepository;
-    fSubModule: IOrderManager;
+    fOrderManager: IOrderManager;
+    fCustomerManager: ICustomerManager;
   public
     [Inject]
-    constructor Create(aSubModule: IOrderManager;
-      aOrderRepository: IOrderRepository);
+    constructor Create(aOrderManager: IOrderManager;
+      aCustomerManager: ICustomerManager; aOrderRepository: IOrderRepository);
     function ToString(): string; override;
   end;
 
   TOrderManager = class(TInterfacedObject, IOrderManager)
+  private
+    fOrderRepository: IOrderRepository;
+  public
+    [Inject]
+    constructor Create(aOrderRepository: IOrderRepository);
+    function ToString(): string; override;
+  end;
+
+  TCustomerManager = class(TInterfacedObject, ICustomerManager)
   private
     fOrderRepository: IOrderRepository;
   public
@@ -81,23 +91,24 @@ end;
 
 { TApplicationRoot }
 
-constructor TApplicationRoot.Create(aDataModule: IMainModule);
+constructor TApplicationRoot.Create(aMainModule: IMainModule);
 begin
-  self.fDataModule := aDataModule;
+  self.fMainModule := aMainModule;
 end;
 
 function TApplicationRoot.ToString: string;
 begin
   Result := Format('ApplicationRoot [%s]',
-    [sLineBreak + IndentString(fDataModule.ToString)]);
+    [sLineBreak + IndentString(fMainModule.ToString)]);
 end;
 
 { TMainModule }
 
-constructor TMainModule.Create(aSubModule: IOrderManager;
-  aOrderRepository: IOrderRepository);
+constructor TMainModule.Create(aOrderManager: IOrderManager;
+  aCustomerManager: ICustomerManager; aOrderRepository: IOrderRepository);
 begin
-  self.fSubModule := aSubModule;
+  self.fOrderManager := aOrderManager;
+  self.fCustomerManager := aCustomerManager;
   self.fOrderRepository := aOrderRepository;
 end;
 
@@ -105,7 +116,8 @@ function TMainModule.ToString: string;
 begin
   Result := Format('MainModule [%s]',
     [sLineBreak + IndentString(fOrderRepository.ToString) +
-    IndentString(fSubModule.ToString)]);
+    IndentString(fCustomerManager.ToString) +
+    IndentString(fOrderManager.ToString)]);
 end;
 
 { TOrderManager }
@@ -118,6 +130,19 @@ end;
 function TOrderManager.ToString: string;
 begin
   Result := Format('OrderManager [%s]',
+    [sLineBreak + IndentString(fOrderRepository.ToString())]);
+end;
+
+{ TCustomerManager }
+
+constructor TCustomerManager.Create(aOrderRepository: IOrderRepository);
+begin
+  self.fOrderRepository := aOrderRepository;
+end;
+
+function TCustomerManager.ToString: string;
+begin
+  Result := Format('TCustomerManager [%s]',
     [sLineBreak + IndentString(fOrderRepository.ToString())]);
 end;
 
@@ -134,13 +159,13 @@ var
   connection: TComponent;
 begin
   connection := fDatabaseConnection.GetConnection();
-  Result := Format('OrderRepository[%s, %s]', [fId,connection.Name]);
+  Result := Format('OrderRepository[%s, %s]', [fId, connection.Name]);
 end;
 
 { TConnectionFactory }
 
 var
-  ConnectionId: integer = 1;
+  ConnectionId: Integer = 1;
 
 constructor TConnectionFactory.Create;
 begin
