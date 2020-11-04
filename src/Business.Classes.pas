@@ -51,7 +51,7 @@ type
 
   TOrderRepository = class(TInterfacedObject, IOrderRepository)
   private
-    fId: string;
+    fIdent: integer;
     fDatabaseConnection: IConnectionFactory;
   public
     [Inject]
@@ -66,6 +66,7 @@ type
     constructor Create;
     destructor Destroy; override;
     function GetConnection(): TComponent;
+    function ToString(): string; override;
   end;
 
 implementation
@@ -76,7 +77,7 @@ const
 function IndentString(const s: string): string;
 var
   sl: TStringList;
-  iLine: Integer;
+  iLine: integer;
 begin
   sl := TStringList.Create;
   try
@@ -98,8 +99,8 @@ end;
 
 function TApplicationRoot.ToString: string;
 begin
-  Result := Format('ApplicationRoot [%s]',
-    [sLineBreak + IndentString(fMainModule.ToString)]);
+  Result := Format('%s [%s]', [self.ClassName,
+    sLineBreak + IndentString(fMainModule.ToString)]);
 end;
 
 { TMainModule }
@@ -114,8 +115,8 @@ end;
 
 function TMainModule.ToString: string;
 begin
-  Result := Format('MainModule [%s]',
-    [sLineBreak + IndentString(fOrderRepository.ToString) +
+  Result := Format('%s [%s]', [self.ClassName,
+    sLineBreak + IndentString(fOrderRepository.ToString) +
     IndentString(fCustomerManager.ToString) +
     IndentString(fOrderManager.ToString)]);
 end;
@@ -129,8 +130,8 @@ end;
 
 function TOrderManager.ToString: string;
 begin
-  Result := Format('OrderManager [%s]',
-    [sLineBreak + IndentString(fOrderRepository.ToString())]);
+  Result := Format('%s [%s]', [self.ClassName,
+    sLineBreak + IndentString(fOrderRepository.ToString())]);
 end;
 
 { TCustomerManager }
@@ -142,16 +143,20 @@ end;
 
 function TCustomerManager.ToString: string;
 begin
-  Result := Format('TCustomerManager [%s]',
-    [sLineBreak + IndentString(fOrderRepository.ToString())]);
+  Result := Format('%s [%s]', [self.ClassName,
+    sLineBreak + IndentString(fOrderRepository.ToString())]);
 end;
 
 { TOrderRepository }
 
+var
+  OrderRepositoryCounter: integer = 1;
+
 constructor TOrderRepository.Create(aDatabaseConnection: IConnectionFactory);
 begin
   self.fDatabaseConnection := aDatabaseConnection;
-  self.fId := chr(ord('A') + random(24));
+  self.fIdent := OrderRepositoryCounter;
+  OrderRepositoryCounter := OrderRepositoryCounter + 1;
 end;
 
 function TOrderRepository.ToString: string;
@@ -159,13 +164,15 @@ var
   connection: TComponent;
 begin
   connection := fDatabaseConnection.GetConnection();
-  Result := Format('OrderRepository[%s, %s]', [fId, connection.Name]);
+  Result := Format('%s(%.3d) - %s [%s]', [self.ClassName, fIdent,
+    connection.Name,
+    sLineBreak + IndentString(fDatabaseConnection.ToString())]);
 end;
 
 { TConnectionFactory }
 
 var
-  ConnectionId: Integer = 1;
+  ConnectionId: integer = 1;
 
 constructor TConnectionFactory.Create;
 begin
@@ -187,6 +194,11 @@ begin
     ConnectionId := ConnectionId + 1;
   end;
   Result := fConnection;
+end;
+
+function TConnectionFactory.ToString: string;
+begin
+  Result := Format('%s', [self.ClassName]);
 end;
 
 end.
