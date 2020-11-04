@@ -12,14 +12,14 @@ uses
 type
   TApplicationRoot = class(TInterfacedObject, IApplicationRoot)
   private
-    fDataModule: IDataModule;
+    fDataModule: IMainModule;
   public
     [Inject]
-    constructor Create(aDataModule: IDataModule);
+    constructor Create(aDataModule: IMainModule);
     function ToString(): string; override;
   end;
 
-  TDataModule = class(TInterfacedObject, IDataModule)
+  TMainModule = class(TInterfacedObject, IMainModule)
   private
     fOrderRepository: IOrderRepository;
     fSubModule: ISubModule;
@@ -81,7 +81,7 @@ end;
 
 { TApplicationRoot }
 
-constructor TApplicationRoot.Create(aDataModule: IDataModule);
+constructor TApplicationRoot.Create(aDataModule: IMainModule);
 begin
   self.fDataModule := aDataModule;
 end;
@@ -92,18 +92,18 @@ begin
     [sLineBreak + IndentString(fDataModule.ToString)]);
 end;
 
-{ TDataModule }
+{ TMainModule }
 
-constructor TDataModule.Create(aSubModule: ISubModule;
+constructor TMainModule.Create(aSubModule: ISubModule;
   aOrderRepository: IOrderRepository);
 begin
   self.fSubModule := aSubModule;
   self.fOrderRepository := aOrderRepository;
 end;
 
-function TDataModule.ToString: string;
+function TMainModule.ToString: string;
 begin
-  Result := Format('DataModule [%s]',
+  Result := Format('MainModule [%s]',
     [sLineBreak + IndentString(fOrderRepository.ToString) +
     IndentString(fSubModule.ToString)]);
 end;

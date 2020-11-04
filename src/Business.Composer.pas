@@ -17,7 +17,7 @@ begin
   Container.RegisterType<IConnectionFactory, TConnectionFactory>().AsSingleton;
   Container.RegisterType<IOrderRepository, TOrderRepository>();
   Container.RegisterType<ISubModule, TSubModule>();
-  Container.RegisterType<IDataModule, TDataModule>();
+  Container.RegisterType<IMainModule, TMainModule>();
   Container.RegisterType<IApplicationRoot, TApplicationRoot>();
   // TODO: GlobalContainer.RegisterDecorator()
   // TODO: GlobalContainer.RegisterFactory()
