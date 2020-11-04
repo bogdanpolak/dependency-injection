@@ -50,7 +50,7 @@ type
 implementation
 
 const
-  Indentation = '  ';
+  Indentation = '    ';
 
 function IndentString(const s: string): string;
 var
@@ -93,8 +93,8 @@ end;
 function TDataModule.ToString: string;
 begin
   Result := Format('DataModule [%s]',
-    [sLineBreak + IndentString(fOrderRepository.ToString) + Indentation + ':' +
-    sLineBreak + IndentString(fSubModule.ToString)]);
+    [sLineBreak + IndentString(fOrderRepository.ToString) +
+    IndentString(fSubModule.ToString)]);
 end;
 
 { TSubModule }
