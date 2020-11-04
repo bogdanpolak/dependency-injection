@@ -6,29 +6,19 @@ program GlobalContainerDemo;
 uses
   System.SysUtils,
   Spring.Container,
-  App.Main in 'App.Main.pas',
   Business.Classes in 'Business.Classes.pas',
   Business.Interfaces in 'Business.Interfaces.pas',
-  Utils.Console in 'Utils\Utils.Console.pas',
-  Utils.Interfaces in 'Utils\Utils.Interfaces.pas',
-  Utils.DeveloperMode in 'Utils.DeveloperMode.pas';
+  Utils.DeveloperMode in 'Utils\Utils.DeveloperMode.pas',
+  Business.Composer in 'Business.Composer.pas';
 
-procedure BuildContainer;
+var
+  App: IApplicationRoot;
 begin
   randomize;
-  GlobalContainer.RegisterType<IOrderRepository, TOrderRepository>();
-  GlobalContainer.RegisterType<ISubModule, TSubModule>();
-  GlobalContainer.RegisterType<IDataModule, TDataModule>();
-  GlobalContainer.RegisterType<IApplicationRoot, TApplicationRoot>();
-  // TODO: GlobalContainer.RegisterDecorator()
-  // TODO: GlobalContainer.RegisterFactory()
-  GlobalContainer.Build;
-end;
-
-begin
   try
-    BuildContainer;
-    RunAll(TCommandlineConsole.Create);
+    BuildContainer(GlobalContainer);
+    App := GlobalContainer.Resolve<IApplicationRoot>;
+    System.Writeln(App.ToString());
   except
     on E: Exception do
       Writeln(E.ClassName, ': ', E.Message);
