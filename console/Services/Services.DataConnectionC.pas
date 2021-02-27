@@ -17,12 +17,14 @@ type
   private
     fMovies: IList<TMovie>;
     fShows: IList<TShow>;
+    fRoom: TRoom;
     fConnected: boolean;
     fConnectionStr: string;
     fLogger: ILogger;
     procedure GuardConnected;
     function Popul(aIMDB: double; aInternalRate: integer): TPopularity;
     function Launch(aWeekNumber: integer): TDateTime;
+    procedure GenerateShows;
   public
     constructor Create(aLogger: ILogger);
     procedure Connect(const aConnectionStr: string);
@@ -84,8 +86,8 @@ begin
     { } TMovie.New(Launch(11), 102, Popul(6.7, 5), 'Mission: Impossible 7'),
     { } TMovie.New(Launch(12), 117, Popul(7.8, 5), 'The Matrix 4'),
     { } TMovie.New(Launch(12), 103, Popul(6.2, 3), 'Sherlock Holmes 3')]);
-
-  fShows := TCollections.CreateObjectList<TShow>();
+  fRoom := TRoom.New(40, 45, 'Room 1');
+  GenerateShows;
 end;
 
 procedure TDataConnection.AddTicket(const aShow: TShow; aSeat: TSeat);
@@ -97,6 +99,13 @@ procedure TDataConnection.AddTicket(const aShow: TShow;
   const aSeats: TArray<TSeat>);
 begin
   GuardConnected;
+end;
+
+procedure TDataConnection.GenerateShows;
+begin
+  fShows := TCollections.CreateObjectList<TShow>([
+    { } TShow.New(fRoom, fMovies[0], EncodeDateTime(2021, 1, 1, 18, 15,
+    0, 0))]);
 end;
 
 function TDataConnection.GetMovies: IEnumerable<TMovie>;
