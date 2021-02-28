@@ -56,15 +56,12 @@ end;
 function TDataConnection.Launch(aWeekNumber: integer): TDateTime;
 var
   dtStart: TDateTime;
-  dtFriday: TDateTime;
 begin
   dtStart := Int(Now) - DaysBeforeToGenerateForMovies + 7 * aWeekNumber;
   Result := ChangeToThatWeekFriday(dtStart);
 end;
 
 procedure TDataConnection.Connect(const aConnectionStr: string);
-var
-  Begining: TDateTime;
 begin
   fConnectionStr := aConnectionStr;
   fMovies := TCollections.CreateObjectList<TMovie>([
@@ -109,28 +106,87 @@ begin
   Result := dtStart + 5 - DayOfTheWeek(dtStart);
 end;
 
+const
+  WorkingHoursConst: array [1 .. 7] of string = ( // Monday .. Sunday
+    '18:30-22:00', // (1) Monday
+    '18:30-22:00', // (2) Tuesday
+    '18:30-23:00', // (3) Wednesday
+    '18:30-23:00', // (4) Thursday
+    '17:30-00:30', // (5) Friday
+    '12:30-00:00', // (6) Saturday
+    '11:30-23:00' // (7) Sunday
+    );
+
+type
+  TTimeRange = record
+    From: TDateTime;
+    Till: TDateTime;
+  end;
+
+function ParseTimeRange(day: TDateTime): TTimeRange;
+var
+  strRange: string;
+  range: TArray<string>;
+begin
+  strRange := WorkingHoursConst[DayOfTheWeek(day)];
+  range := strRange.Split(['-']);
+  Result.From := StrToTime(range[0]);
+  Result.Till := StrToTime(range[1]);
+  if Result.From > Result.Till then
+    Result.Till := Result.Till + 1;
+end;
+
+function LenghtToTime(length: integer): TDateTime;
+var
+  mm: word;
+begin
+  mm := Ceil(length / 10) * 10;
+  Result := mm / 24 / 60;
+end;
+
 procedure TDataConnection.GenerateShows;
 var
   dayStart: integer;
-  dayEnd: Integer;
-  day: Integer;
+  dayEnd: integer;
+  day: integer;
   show: TShow;
-  movieIdx: Integer;
+  movieIdx: integer;
+  timeRange: TTimeRange;
+  startTime: TDateTime;
+  currMovieIdx: integer;
+  movie: TMovie;
+  nextShowTime: TDateTime;
 begin
   fShows := TCollections.CreateObjectList<TShow>();
   dayStart := Floor(ChangeToThatWeekFriday(Now() -
     DaysBeforeToGenerateForShows));
-  dayEnd := Floor(Now-1);
+  dayEnd := Floor(Now - 1);
   movieIdx := fMovies.Count;
   for day := dayStart to dayEnd do
   begin
-    repeat
-      movieIdx:=movieIdx+1;
-      if movieIdx>=fMovies.Count then
-        movieIdx:=0;
-    until Floor(fMovies[movieIdx].Launch)<=day;
-    show := TShow.New(fRoom, fMovies[movieIdx], day + EncodeTime(18, 15, 0, 0));
-    fShows.Add(show);
+    timeRange := ParseTimeRange(day);
+    startTime := timeRange.From;
+    while (startTime < timeRange.Till) do
+    begin
+      currMovieIdx := movieIdx;
+      repeat
+        movieIdx := movieIdx + 1;
+        if movieIdx >= fMovies.Count then
+          movieIdx := 0;
+      until Floor(fMovies[movieIdx].Launch) <= day;
+      movie := fMovies[movieIdx];
+      nextShowTime := startTime + LenghtToTime(movie.length + 25);
+      if (nextShowTime < timeRange.Till) then
+      begin
+        show := TShow.New(fRoom, movie, day + startTime);
+        fShows.Add(show);
+      end
+      else
+      begin
+        movieIdx := currMovieIdx;
+      end;
+      startTime := nextShowTime;
+    end;
   end;
 end;
 
