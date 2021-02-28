@@ -14,6 +14,9 @@ uses
 
 type
   TDataConnection = class(TInterfacedObject, IDataConnection)
+  private const
+    DaysBeforeToGenerateForMovies = 80;
+    DaysBeforeToGenerateForShows = 60;
   private
     fMovies: IList<TMovie>;
     fShows: IList<TShow>;
@@ -25,6 +28,7 @@ type
     function Popul(aIMDB: double; aInternalRate: integer): TPopularity;
     function Launch(aWeekNumber: integer): TDateTime;
     procedure GenerateShows;
+    function ChangeToThatWeekFriday(dtStart: TDateTime): TDateTime;
   public
     constructor Create(aLogger: ILogger);
     procedure Connect(const aConnectionStr: string);
@@ -54,10 +58,8 @@ var
   dtStart: TDateTime;
   dtFriday: TDateTime;
 begin
-  dtStart := Int(Now) - 80 + aWeekNumber * 7;
-  dtFriday := dtStart + 5 - DayOfTheWeek(dtStart);
-  fLogger.LogInfo(DateToStr(dtFriday));
-  Result := Int(Now) + aWeekNumber * 7;
+  dtStart := Int(Now) - DaysBeforeToGenerateForMovies + 7 * aWeekNumber;
+  Result := ChangeToThatWeekFriday(dtStart);
 end;
 
 procedure TDataConnection.Connect(const aConnectionStr: string);
@@ -88,6 +90,7 @@ begin
     { } TMovie.New(Launch(12), 103, Popul(6.2, 3), 'Sherlock Holmes 3')]);
   fRoom := TRoom.New(40, 45, 'Room 1');
   GenerateShows;
+  fConnected := True;
 end;
 
 procedure TDataConnection.AddTicket(const aShow: TShow; aSeat: TSeat);
@@ -101,11 +104,34 @@ begin
   GuardConnected;
 end;
 
-procedure TDataConnection.GenerateShows;
+function TDataConnection.ChangeToThatWeekFriday(dtStart: TDateTime): TDateTime;
 begin
-  fShows := TCollections.CreateObjectList<TShow>([
-    { } TShow.New(fRoom, fMovies[0], EncodeDateTime(2021, 1, 1, 18, 15,
-    0, 0))]);
+  Result := dtStart + 5 - DayOfTheWeek(dtStart);
+end;
+
+procedure TDataConnection.GenerateShows;
+var
+  dayStart: integer;
+  dayEnd: Integer;
+  day: Integer;
+  show: TShow;
+  movieIdx: Integer;
+begin
+  fShows := TCollections.CreateObjectList<TShow>();
+  dayStart := Floor(ChangeToThatWeekFriday(Now() -
+    DaysBeforeToGenerateForShows));
+  dayEnd := Floor(Now-1);
+  movieIdx := fMovies.Count;
+  for day := dayStart to dayEnd do
+  begin
+    repeat
+      movieIdx:=movieIdx+1;
+      if movieIdx>=fMovies.Count then
+        movieIdx:=0;
+    until Floor(fMovies[movieIdx].Launch)<=day;
+    show := TShow.New(fRoom, fMovies[movieIdx], day + EncodeTime(18, 15, 0, 0));
+    fShows.Add(show);
+  end;
 end;
 
 function TDataConnection.GetMovies: IEnumerable<TMovie>;
@@ -122,7 +148,7 @@ end;
 
 procedure TDataConnection.GuardConnected;
 begin
-
+  Assert(fConnected);
 end;
 
 end.
