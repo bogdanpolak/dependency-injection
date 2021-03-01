@@ -1,4 +1,4 @@
-unit Services.DataConnectionC;
+﻿unit Services.DataConnectionC;
 
 interface
 
@@ -6,6 +6,7 @@ uses
   System.SysUtils,
   System.DateUtils,
   System.Math,
+  Spring,
   Spring.Collections,
   {-}
   Services.DataConnection,
@@ -20,7 +21,7 @@ type
   private
     fMovies: IList<TMovie>;
     fShows: IList<TShow>;
-    fRoom: TRoom;
+    fRooms: IList<TRoom>;
     fConnected: boolean;
     fConnectionStr: string;
     fLogger: ILogger;
@@ -28,7 +29,9 @@ type
     function Popul(aIMDB: double; aInternalRate: integer): TPopularity;
     function Launch(aWeekNumber: integer): TDateTime;
     procedure GenerateShows;
-    function ChangeToThatWeekFriday(dtStart: TDateTime): TDateTime;
+    function ThatWeekFriday(dtStart: TDateTime): integer;
+    function MoviesForTheWeek(const aStartDay: integer;
+      const aMoviesNo: integer): IEnumerable<TMovie>;
   public
     constructor Create(aLogger: ILogger);
     procedure Connect(const aConnectionStr: string);
@@ -58,7 +61,7 @@ var
   dtStart: TDateTime;
 begin
   dtStart := Int(Now) - DaysBeforeToGenerateForMovies + 7 * aWeekNumber;
-  Result := ChangeToThatWeekFriday(dtStart);
+  Result := ThatWeekFriday(dtStart);
 end;
 
 procedure TDataConnection.Connect(const aConnectionStr: string);
@@ -85,9 +88,13 @@ begin
     { } TMovie.New(Launch(11), 102, Popul(6.7, 5), 'Mission: Impossible 7'),
     { } TMovie.New(Launch(12), 117, Popul(7.8, 5), 'The Matrix 4'),
     { } TMovie.New(Launch(12), 103, Popul(6.2, 3), 'Sherlock Holmes 3')]);
-  fRoom := TRoom.New(40, 45, 'Room 1');
+  fRooms := TCollections.CreateObjectList<TRoom>([
+    { } TRoom.New(40, 45, 'Room 1')]);
   GenerateShows;
   fConnected := True;
+  fLogger.LogInfo('Counters');
+  fLogger.LogInfo(Format('  * Movies: %d', [fMovies.count]));
+  fLogger.LogInfo(Format('  * Shows: %d', [fShows.count]));
 end;
 
 procedure TDataConnection.AddTicket(const aShow: TShow; aSeat: TSeat);
@@ -101,9 +108,9 @@ begin
   GuardConnected;
 end;
 
-function TDataConnection.ChangeToThatWeekFriday(dtStart: TDateTime): TDateTime;
+function TDataConnection.ThatWeekFriday(dtStart: TDateTime): integer;
 begin
-  Result := dtStart + 5 - DayOfTheWeek(dtStart);
+  Result := Floor(dtStart + 5 - DayOfTheWeek(dtStart));
 end;
 
 const
@@ -144,50 +151,123 @@ begin
   Result := mm / 24 / 60;
 end;
 
+function TDataConnection.MoviesForTheWeek(const aStartDay: integer;
+  const aMoviesNo: integer): IEnumerable<TMovie>;
+var
+  s: string;
+  list: IList<Tuple<TMovie, integer>>;
+  availableMovies: IEnumerable<TMovie>;
+  idx: integer;
+  i: integer;
+  movie: TMovie;
+  enumerator: IEnumerator<TMovie>;
+  rank: integer;
+  moviesForWeek: IList<TMovie>;
+  j: Integer;
+begin
+  availableMovies := fMovies.Where(
+    function(const m: TMovie): boolean
+    begin
+      Result := Floor(m.Launch) <= aStartDay;
+    end);
+  list := TCollections.CreateList < Tuple < TMovie, integer >> ();
+  idx := 0;
+  enumerator := availableMovies.GetEnumerator;
+  for i := 0 to aMoviesNo - 1 do
+  begin
+    if not enumerator.MoveNext then
+    begin
+      enumerator := availableMovies.GetEnumerator;
+      enumerator.MoveNext;
+    end;
+    movie := enumerator.Current;
+    rank := random(10 + movie.Popularity -
+      (aStartDay - Floor(movie.Launch)) div 3);
+    list.Add(Tuple.Create<TMovie, integer>(movie, rank));
+  end;
+  list.Sort(
+    function(const aLeft: Tuple<TMovie, integer>;
+      const aRight: Tuple<TMovie, integer>): integer
+    begin
+      Result := 0 - CompareValue(aLeft.Value2, aRight.Value2);
+    end);
+  moviesForWeek := TCollections.CreateList<TMovie>();
+  list.ForEach(
+    procedure(const item: Tuple<TMovie, integer>)
+    begin
+      moviesForWeek.Add(item.Value1);
+    end);
+  idx := 1;
+  while idx<moviesForWeek.Count-1 do
+  begin
+    if moviesForWeek[idx-1] = moviesForWeek[idx] then
+    begin
+      j:=idx+1;
+      while(j<moviesForWeek.Count) and (moviesForWeek[j]=moviesForWeek[idx]) do
+        inc(j);
+      if (j<moviesForWeek.Count) then
+      begin
+        movie := moviesForWeek[idx];
+        moviesForWeek[idx] := moviesForWeek[j];
+        moviesForWeek[j] := movie;
+      end;
+      idx := 0;
+    end;
+    inc(idx);
+  end;
+  Result := moviesForWeek;
+end;
+
 procedure TDataConnection.GenerateShows;
 var
   dayStart: integer;
   dayEnd: integer;
   day: integer;
   show: TShow;
-  movieIdx: integer;
+  movieEnum: IEnumerator<TMovie>;
   timeRange: TTimeRange;
   startTime: TDateTime;
   currMovieIdx: integer;
-  movie: TMovie;
+  movie1: TMovie;
   nextShowTime: TDateTime;
+  movies: IEnumerable<TMovie>;
+  lastDay: TDateTime;
 begin
   fShows := TCollections.CreateObjectList<TShow>();
-  dayStart := Floor(ChangeToThatWeekFriday(Now() -
-    DaysBeforeToGenerateForShows));
+  dayStart := ThatWeekFriday(Now() - DaysBeforeToGenerateForShows);
   dayEnd := Floor(Now - 1);
-  movieIdx := fMovies.Count;
   for day := dayStart to dayEnd do
   begin
+    if DayOfTheWeek(day) = 5 then
+    begin
+      movies := MoviesForTheWeek(day, fRooms.Count * 40);
+      movieEnum := movies.GetEnumerator;
+      movieEnum.MoveNext;
+    end;
     timeRange := ParseTimeRange(day);
     startTime := timeRange.From;
     while (startTime < timeRange.Till) do
     begin
-      currMovieIdx := movieIdx;
-      repeat
-        movieIdx := movieIdx + 1;
-        if movieIdx >= fMovies.Count then
-          movieIdx := 0;
-      until Floor(fMovies[movieIdx].Launch) <= day;
-      movie := fMovies[movieIdx];
-      nextShowTime := startTime + LenghtToTime(movie.length + 25);
+      movie1 := movieEnum.Current;
+      nextShowTime := startTime + LenghtToTime(movie1.length + 25);
       if (nextShowTime < timeRange.Till) then
       begin
-        show := TShow.New(fRoom, movie, day + startTime);
+        show := TShow.New(fRooms[0], movie1, day + startTime);
         fShows.Add(show);
-      end
-      else
-      begin
-        movieIdx := currMovieIdx;
+        movieEnum.MoveNext;
       end;
       startTime := nextShowTime;
     end;
   end;
+  lastDay:=0;
+  fShows.ForEach(
+    procedure(const show: TShow)
+    begin
+      if lastDay<>Floor(show.Start) then
+        fLogger.LogInfo(FormatDateTime('dd.mm.yyyy',show.Start));
+      lastDay := Floor(show.Start);
+      fLogger.LogInfo(Format('    %s - %s',[FormatDateTime('hh:nn',show.Start),show.movie.Name]));
+    end);
 end;
 
 function TDataConnection.GetMovies: IEnumerable<TMovie>;
