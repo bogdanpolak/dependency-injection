@@ -1,4 +1,4 @@
-unit Commands.MainC;
+﻿unit Commands.MainC;
 
 interface
 
@@ -37,13 +37,8 @@ begin
 end;
 
 procedure TMainCommand.Run(const date: TDateTime);
-var
-  count: Integer;
 begin
   fDataConnection.Connect('host=locahost;database=cinema');
-  count := fDataConnection.GetMovies.count;
-  fLogger.LogInfo(Format('Movies count %d', [count]));
-  fLogger.LogInfo(Format('Date: %s', [FormatDateTime('dd.mm.yyyy',Int(date))]));
 end;
 
 end.
