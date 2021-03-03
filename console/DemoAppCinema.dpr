@@ -20,7 +20,8 @@ uses
   Utils.CmdParameters in 'Utils\Utils.CmdParameters.pas',
   Utils.CmdParametersC in 'Utils\Utils.CmdParametersC.pas',
   App.Parameters in 'Application\App.Parameters.pas',
-  App.ParametersC in 'Application\App.ParametersC.pas';
+  App.ParametersC in 'Application\App.ParametersC.pas',
+  Utils.DateTime in 'Utils\Utils.DateTime.pas';
 
 begin
   try

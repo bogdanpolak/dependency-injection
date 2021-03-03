@@ -44,6 +44,9 @@ type
 
 implementation
 
+uses
+  Utils.DateTime;
+
 constructor TDataConnection.Create(aLogger: ILogger);
 begin
   fConnected := false;
@@ -235,7 +238,7 @@ var
 begin
   fShows := TCollections.CreateObjectList<TShow>();
   dayStart := ThatWeekFriday(Now() - DaysBeforeToGenerateForShows);
-  dayEnd := Floor(Now - 1);
+  dayEnd := TDateUtils.NextFriday(Now)+13;
   for day := dayStart to dayEnd do
   begin
     if DayOfTheWeek(day) = 5 then
