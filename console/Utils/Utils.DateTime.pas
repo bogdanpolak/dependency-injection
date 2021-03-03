@@ -14,8 +14,11 @@ type
 implementation
 
 class function TDateUtils.NextFriday(const aDate: TDateTime): integer;
+var
+  dow: Word;
 begin
-  Result := Floor(aDate) + 5 - DayOfTheWeek(aDate);
+  dow := DayOfTheWeek(aDate);
+  Result := Floor(aDate) + IfThen(dow <= 5, 5, 12) - dow;
 end;
 
 end.
