@@ -3,7 +3,8 @@
 interface
 
 uses
-  System.Math;
+  System.Math,
+  System.DateUtils;
 
 type
   TDateUtils = class
@@ -14,7 +15,7 @@ implementation
 
 class function TDateUtils.NextFriday(const aDate: TDateTime): integer;
 begin
-  Result := Floor(aDate);
+  Result := Floor(aDate) + 5 - DayOfTheWeek(aDate);
 end;
 
 end.
