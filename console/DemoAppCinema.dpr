@@ -21,7 +21,8 @@ uses
   Utils.CmdParametersC in 'Utils\Utils.CmdParametersC.pas',
   App.Parameters in 'Application\App.Parameters.pas',
   App.ParametersC in 'Application\App.ParametersC.pas',
-  Utils.DateTime in 'Utils\Utils.DateTime.pas';
+  Utils.DateTime in 'Utils\Utils.DateTime.pas',
+  Generator.Utils.RoomStartTimes in 'Generator\Generator.Utils.RoomStartTimes.pas';
 
 begin
   try

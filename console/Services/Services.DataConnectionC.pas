@@ -52,6 +52,7 @@ type
 implementation
 
 uses
+  Generator.Utils.RoomStartTimes,
   Utils.DateTime;
 
 constructor TDataConnection.Create(aLogger: ILogger);
@@ -150,36 +151,6 @@ begin
   Result := Floor(dtStart + 5 - DayOfTheWeek(dtStart));
 end;
 
-const
-  WorkingHoursConst: array [1 .. 7] of string = ( // Monday .. Sunday
-  '18:30-22:00', // (1) Monday
-  '18:30-22:00', // (2) Tuesday
-  '18:30-23:00', // (3) Wednesday
-  '18:30-23:00', // (4) Thursday
-  '17:30-00:30', // (5) Friday
-  '12:30-00:00', // (6) Saturday
-  '11:30-23:00' // (7) Sunday
-    );
-
-type
-  TTimeRange = record
-    From: TDateTime;
-    Till: TDateTime;
-  end;
-
-function ParseTimeRange(day: TDateTime): TTimeRange;
-var
-  strRange: string;
-  range: TArray<string>;
-begin
-  strRange := WorkingHoursConst[DayOfTheWeek(day)];
-  range := strRange.Split(['-']);
-  Result.From := StrToTime(range[0]);
-  Result.Till := StrToTime(range[1]);
-  if Result.From > Result.Till then
-    Result.Till := Result.Till + 1;
-end;
-
 function LenghtToTime(length: integer): TDateTime;
 var
   mm: word;
@@ -254,6 +225,20 @@ begin
   Result := moviesForWeek;
 end;
 
+
+// ---------------------------------------------------------------------
+const
+  WorkingHoursConst: array [TWeek] of string = (
+    { Mon } '18:30-22:00',
+    { Tue } '18:30-22:00',
+    { Wed } '18:30-23:00',
+    { Thu } '18:30-23:00',
+    { Fri } '17:30-00:30',
+    { Sat } '12:30-00:00',
+    { Sun } '11:30-23:00');
+
+// ---------------------------------------------------------------------
+
 function TDataConnection.GenerateShows(const aMovies: IEnumerable<TMovie>;
 const aRooms: IEnumerable<TRoom>): IList<TShow>;
 var
@@ -262,15 +247,16 @@ var
   day: integer;
   show: TShow;
   movieEnum: IEnumerator<TMovie>;
-  timeRange: TTimeRange;
-  startTime: TDateTime;
-  movie1: TMovie;
-  nextShowTime: TDateTime;
+  movie: TMovie;
   movies: IEnumerable<TMovie>;
+  startTimes: Shared<TRoomStartTimes>;
+  startDateTime: TDateTime;
+  room: TRoom;
 begin
   Result := TCollections.CreateObjectList<TShow>();
   dayStart := ThatWeekFriday(Now() - DaysBeforeToGenerateForShows);
   dayEnd := TDateUtils.NextFriday(Now) + 13;
+  startTimes := TRoomStartTimes.Create(aRooms, WorkingHoursConst);
   for day := dayStart to dayEnd do
   begin
     if DayOfTheWeek(day) = 5 then
@@ -279,19 +265,13 @@ begin
       movieEnum := movies.GetEnumerator;
       movieEnum.MoveNext;
     end;
-    timeRange := ParseTimeRange(day);
-    startTime := timeRange.From;
-    while (startTime < timeRange.Till) do
+    startTimes.Value.Init(day);
+    movie := movieEnum.Current;
+    while (startTimes.Value.TryGetSlot(movie.length + 25, startDateTime, room)) do
     begin
-      movie1 := movieEnum.Current;
-      nextShowTime := startTime + LenghtToTime(movie1.length + 25);
-      if (nextShowTime < timeRange.Till) then
-      begin
-        show := TShow.New(aRooms.First, movie1, day + startTime);
-        Result.Add(show);
-        movieEnum.MoveNext;
-      end;
-      startTime := nextShowTime;
+      show := TShow.New(aRooms.First, movie, startDateTime);
+      Result.Add(show);
+      movieEnum.MoveNext;
     end;
   end;
 end;
