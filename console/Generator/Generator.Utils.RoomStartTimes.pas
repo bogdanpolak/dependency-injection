@@ -9,6 +9,8 @@ uses
   Model.Cinema;
 
 type
+  TWeek = 1..7;
+
   TTimeRange = record
     From: TDateTime;
     Till: TDateTime;
