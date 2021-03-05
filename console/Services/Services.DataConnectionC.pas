@@ -143,7 +143,8 @@ end;
 function TDataConnection.GenerateRooms: IList<TRoom>;
 begin
   Result := TCollections.CreateObjectList<TRoom>([
-  { } TRoom.New(40, 45, 'Room 1')]);
+  { } TRoom.New(40, 45, 'Room 1'),
+  { } TRoom.New(40, 54, 'Room 2')]);
 end;
 
 function TDataConnection.ThatWeekFriday(dtStart: TDateTime): integer;
@@ -225,19 +226,18 @@ begin
   Result := moviesForWeek;
 end;
 
-
 // ---------------------------------------------------------------------
 const
   WorkingHoursConst: array [TWeek] of string = (
-    { Mon } '18:30-22:00',
-    { Tue } '18:30-22:00',
-    { Wed } '18:30-23:00',
-    { Thu } '18:30-23:00',
-    { Fri } '17:30-00:30',
-    { Sat } '12:30-00:00',
-    { Sun } '11:30-23:00');
+  { Mon } '18:30-22:00',
+  { Tue } '18:30-22:00',
+  { Wed } '18:30-23:00',
+  { Thu } '18:30-23:00',
+  { Fri } '17:30-00:30',
+  { Sat } '12:30-00:00',
+  { Sun } '11:30-23:00');
 
-// ---------------------------------------------------------------------
+  // ---------------------------------------------------------------------
 
 function TDataConnection.GenerateShows(const aMovies: IEnumerable<TMovie>;
 const aRooms: IEnumerable<TRoom>): IList<TShow>;
@@ -247,7 +247,6 @@ var
   day: integer;
   show: TShow;
   movieEnum: IEnumerator<TMovie>;
-  movie: TMovie;
   movies: IEnumerable<TMovie>;
   startTimes: Shared<TRoomStartTimes>;
   startDateTime: TDateTime;
@@ -266,10 +265,10 @@ begin
       movieEnum.MoveNext;
     end;
     startTimes.Value.Init(day);
-    movie := movieEnum.Current;
-    while (startTimes.Value.TryGetSlot(movie.length + 25, startDateTime, room)) do
+    while (startTimes.Value.TryGetSlot(movieEnum.Current.length + 25,
+      startDateTime, room)) do
     begin
-      show := TShow.New(aRooms.First, movie, startDateTime);
+      show := TShow.New(aRooms.First, movieEnum.Current, startDateTime);
       Result.Add(show);
       movieEnum.MoveNext;
     end;
