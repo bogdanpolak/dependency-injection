@@ -218,8 +218,8 @@ begin
         movie := moviesForWeek[idx];
         moviesForWeek[idx] := moviesForWeek[j];
         moviesForWeek[j] := movie;
+        idx := 0;
       end;
-      idx := 0;
     end;
     inc(idx);
   end;
