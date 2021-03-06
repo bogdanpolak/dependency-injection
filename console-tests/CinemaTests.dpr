@@ -14,11 +14,14 @@ uses
   {$ENDIF }
   DUnitX.TestFramework,
   Test.Utils.DateTime in 'Test.Utils.DateTime.pas',
+  Test.Generator.TRoomStartTimes in 'Test.Generator.TRoomStartTimes.pas',
   Utils.CmdParameters in '..\console\Utils\Utils.CmdParameters.pas',
   Utils.CmdParametersC in '..\console\Utils\Utils.CmdParametersC.pas',
   Utils.ConsoleLogger in '..\console\Utils\Utils.ConsoleLogger.pas',
   Utils.DateTime in '..\console\Utils\Utils.DateTime.pas',
-  Utils.Logger in '..\console\Utils\Utils.Logger.pas';
+  Utils.Logger in '..\console\Utils\Utils.Logger.pas',
+  Generator.Utils.RoomStartTimes in '..\console\Generator\Generator.Utils.RoomStartTimes.pas',
+  Model.Cinema in '..\console\Model\Model.Cinema.pas';
 
 {$IFNDEF TESTINSIGHT}
 var
