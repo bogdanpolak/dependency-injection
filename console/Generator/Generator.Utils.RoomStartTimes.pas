@@ -47,7 +47,6 @@ end;
 
 function TRoomStartTimes.Init(const aDay: integer): TTimeRange;
 var
-  aTimeRange: TTimeRange;
   idx: Integer;
 begin
   fDay := aDay;
