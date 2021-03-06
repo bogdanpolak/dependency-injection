@@ -165,13 +165,14 @@ const aStartDay: integer; const aMoviesNo: integer): IEnumerable<TMovie>;
 var
   list: IList<Tuple<TMovie, integer>>;
   availableMovies: IEnumerable<TMovie>;
-  idx: integer;
   i: integer;
   movie: TMovie;
   enumerator: IEnumerator<TMovie>;
   rank: integer;
+  idx1: integer;
+  idx2: integer;
+  tuple1: Tuple<TMovie, integer>;
   moviesForWeek: IList<TMovie>;
-  j: integer;
 begin
   availableMovies := aMovies.Where(
     function(const m: TMovie): boolean
@@ -198,31 +199,26 @@ begin
     begin
       Result := 0 - CompareValue(aLeft.Value2, aRight.Value2);
     end);
+  for i := 0 to aMoviesNo - 1 do
+  begin
+    idx1 := random(aMoviesNo - 2);
+    idx2 := idx1 + random(aMoviesNo - idx1);
+    if idx2>=aMoviesNo then
+      tuple1 := list[idx1]
+    else
+    if list[idx1].Value2 > list[idx2].Value2 then
+    begin
+      tuple1 := list[idx1];
+      list[idx1] := list[idx2];
+      list[idx2] := tuple1;
+    end;
+  end;
   moviesForWeek := TCollections.CreateList<TMovie>();
   list.ForEach(
     procedure(const item: Tuple<TMovie, integer>)
     begin
       moviesForWeek.Add(item.Value1);
     end);
-  idx := 1;
-  while idx < moviesForWeek.count - 1 do
-  begin
-    if moviesForWeek[idx - 1] = moviesForWeek[idx] then
-    begin
-      j := idx + 1;
-      while (j < moviesForWeek.count) and
-        (moviesForWeek[j] = moviesForWeek[idx]) do
-        inc(j);
-      if (j < moviesForWeek.count) then
-      begin
-        movie := moviesForWeek[idx];
-        moviesForWeek[idx] := moviesForWeek[j];
-        moviesForWeek[j] := movie;
-        idx := 0;
-      end;
-    end;
-    inc(idx);
-  end;
   Result := moviesForWeek;
 end;
 
