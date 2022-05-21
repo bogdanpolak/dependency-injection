@@ -25,13 +25,16 @@ begin
   // Data Layer:
   Container.RegisterType<IConnectionFactory, TConnectionFactory>().AsSingleton;
   Container.RegisterType<IDatabaseContext, TDatabaseContext>();
+
   // Domain Layer
   Container.RegisterType<ICustomerManager, TCustomerManager>();
-  Container.RegisterType<IOrderManager, TOrderManager>();
+  Container.RegisterType<IOrderGenerator, TOrderGenerator>();
+  Container.RegisterType<ILoyalityProgramService, TLoyalityProgramService>();
   Container.RegisterType<ICheckoutFeature, TCheckoutFeature>();
 
   // Application Layer:
   Container.RegisterType<IApplicationRoot, TApplicationRoot>();
+
   // TODO: GlobalContainer.RegisterDecorator()
   // TODO: GlobalContainer.RegisterFactory()
 

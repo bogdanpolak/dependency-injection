@@ -5,6 +5,7 @@ interface
 uses
   System.Classes,
   System.SysUtils,
+  System.Math,
   Spring.Container.Common,
   {}
   Business.Interfaces;
@@ -17,23 +18,41 @@ type
     [Inject]
     constructor Create(aCheckoutFeature: ICheckoutFeature);
     procedure GenerateDependencyReport();
+    procedure Checkout(
+      aMemberCard: string;
+      const aCart: TObject);
   end;
 
   TCheckoutFeature = class(TInterfacedObject, ICheckoutFeature)
   private
     fDatabaseContext: IDatabaseContext;
-    fOrderManager: IOrderManager;
+    fLoyalityProgramService: ILoyalityProgramService;
+    fOredrGenerator: IOrderGenerator;
     fCustomerManager: ICustomerManager;
+    fPriceModifier: currency;
   public
     [Inject]
     constructor Create(
-      aOrderManager: IOrderManager;
+      aLoyalityProgramService: ILoyalityProgramService;
+      aOrderGenerator: IOrderGenerator;
       aCustomerManager: ICustomerManager;
       aDatabaseContext: IDatabaseContext);
+    procedure UseLoyalityProgramCard(const aCardNumber: string);
+    procedure ProcessCart(const aCart: TObject);
     function ToString(): string; override;
   end;
 
-  TOrderManager = class(TInterfacedObject, IOrderManager)
+  TLoyalityProgramService = class(TInterfacedObject, ILoyalityProgramService)
+  private
+    fDatabaseContext: IDatabaseContext;
+  public
+    [Inject]
+    constructor Create(aDatabaseContext: IDatabaseContext);
+    function ToString(): string; override;
+    function IsCardActive(const aCardNumber: string): boolean;
+  end;
+
+  TCustomerManager = class(TInterfacedObject, ICustomerManager)
   private
     fDatabaseContext: IDatabaseContext;
   public
@@ -42,7 +61,7 @@ type
     function ToString(): string; override;
   end;
 
-  TCustomerManager = class(TInterfacedObject, ICustomerManager)
+  TOrderGenerator = class(TInterfacedObject, IOrderGenerator)
   private
     fDatabaseContext: IDatabaseContext;
   public
@@ -94,6 +113,17 @@ end;
 
 { TApplicationRoot }
 
+procedure TApplicationRoot.Checkout(
+  aMemberCard: string;
+  const aCart: TObject);
+begin
+  if aMemberCard <> '' then
+  begin
+    fCheckoutFeature.UseLoyalityProgramCard(aMemberCard);
+  end;
+  fCheckoutFeature.ProcessCart(aCart);
+end;
+
 constructor TApplicationRoot.Create(aCheckoutFeature: ICheckoutFeature);
 begin
   self.fCheckoutFeature := aCheckoutFeature;
@@ -107,37 +137,64 @@ begin
   System.Writeln('----------------------------------------------');
 end;
 
-{ TMainModule }
+{ TCheckoutFeature }
 
 constructor TCheckoutFeature.Create(
-  aOrderManager: IOrderManager;
+  aLoyalityProgramService: ILoyalityProgramService;
+  aOrderGenerator: IOrderGenerator;
   aCustomerManager: ICustomerManager;
   aDatabaseContext: IDatabaseContext);
 begin
-  self.fOrderManager := aOrderManager;
+  self.fLoyalityProgramService := aLoyalityProgramService;
+  self.fOredrGenerator := aOrderGenerator;
   self.fCustomerManager := aCustomerManager;
   self.fDatabaseContext := aDatabaseContext;
+end;
+
+procedure TCheckoutFeature.UseLoyalityProgramCard(const aCardNumber: string);
+var
+  isActive: boolean;
+  aDiscount: integer;
+begin
+  isActive := fLoyalityProgramService.IsCardActive(aCardNumber);
+  aDiscount := IfThen(isActive, 10, 0);
+  fPriceModifier := (100 - aDiscount) / 100;
+end;
+
+procedure TCheckoutFeature.ProcessCart(const aCart: TObject);
+begin
+
 end;
 
 function TCheckoutFeature.ToString: string;
 begin
   Result := Format('%s [%s]', [self.ClassName,
-    sLineBreak + IndentString(fDatabaseContext.ToString) +
+    sLineBreak + IndentString(fLoyalityProgramService.ToString()) +
+    IndentString(fDatabaseContext.ToString) +
     IndentString(fCustomerManager.ToString) +
-    IndentString(fOrderManager.ToString)]);
+    IndentString(fOredrGenerator.ToString)]);
 end;
 
-{ TOrderManager }
+{ TLoyalityProgramService }
 
-constructor TOrderManager.Create(aDatabaseContext: IDatabaseContext);
+constructor TLoyalityProgramService.Create(aDatabaseContext: IDatabaseContext);
 begin
-  self.fDatabaseContext := aDatabaseContext;
+  fDatabaseContext := aDatabaseContext;
 end;
 
-function TOrderManager.ToString: string;
+function TLoyalityProgramService.ToString: string;
 begin
   Result := Format('%s [%s]', [self.ClassName,
     sLineBreak + IndentString(fDatabaseContext.ToString())]);
+end;
+
+function TLoyalityProgramService.IsCardActive(const aCardNumber
+  : string): boolean;
+var
+  aNumber: integer;
+begin
+  Result := aCardNumber.StartsWith('A') and TryStrToInt(aCardNumber, aNumber)
+    and (aNumber > 100);
 end;
 
 { TCustomerManager }
@@ -148,6 +205,19 @@ begin
 end;
 
 function TCustomerManager.ToString: string;
+begin
+  Result := Format('%s [%s]', [self.ClassName,
+    sLineBreak + IndentString(fDatabaseContext.ToString())]);
+end;
+
+{ TOrderGenerator }
+
+constructor TOrderGenerator.Create(aDatabaseContext: IDatabaseContext);
+begin
+  self.fDatabaseContext := aDatabaseContext;
+end;
+
+function TOrderGenerator.ToString: string;
 begin
   Result := Format('%s [%s]', [self.ClassName,
     sLineBreak + IndentString(fDatabaseContext.ToString())]);
