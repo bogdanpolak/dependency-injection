@@ -12,16 +12,16 @@ uses
 type
   TApplicationRoot = class(TInterfacedObject, IApplicationRoot)
   private
-    fMainModule: IMainModule;
+    fCheckoutFeature: ICheckoutFeature;
   public
     [Inject]
-    constructor Create(aMainModule: IMainModule);
-    function ToString(): string; override;
+    constructor Create(aCheckoutFeature: ICheckoutFeature);
+    procedure GenerateDependencyReport();
   end;
 
-  TMainModule = class(TInterfacedObject, IMainModule)
+  TCheckoutFeature = class(TInterfacedObject, ICheckoutFeature)
   private
-    fOrderRepository: IOrderRepository;
+    fDatabaseContext: IDatabaseContext;
     fOrderManager: IOrderManager;
     fCustomerManager: ICustomerManager;
   public
@@ -29,29 +29,29 @@ type
     constructor Create(
       aOrderManager: IOrderManager;
       aCustomerManager: ICustomerManager;
-      aOrderRepository: IOrderRepository);
+      aDatabaseContext: IDatabaseContext);
     function ToString(): string; override;
   end;
 
   TOrderManager = class(TInterfacedObject, IOrderManager)
   private
-    fOrderRepository: IOrderRepository;
+    fDatabaseContext: IDatabaseContext;
   public
     [Inject]
-    constructor Create(aOrderRepository: IOrderRepository);
+    constructor Create(aDatabaseContext: IDatabaseContext);
     function ToString(): string; override;
   end;
 
   TCustomerManager = class(TInterfacedObject, ICustomerManager)
   private
-    fOrderRepository: IOrderRepository;
+    fDatabaseContext: IDatabaseContext;
   public
     [Inject]
-    constructor Create(aOrderRepository: IOrderRepository);
+    constructor Create(aDatabaseContext: IDatabaseContext);
     function ToString(): string; override;
   end;
 
-  TOrderRepository = class(TInterfacedObject, IOrderRepository)
+  TDatabaseContext = class(TInterfacedObject, IDatabaseContext)
   private
     fIdent: integer;
     fDatabaseConnection: IConnectionFactory;
@@ -64,10 +64,6 @@ type
   TConnectionFactory = class(TInterfacedObject, IConnectionFactory)
   private
     fConnection: TComponent;
-    function MethodA(
-      a: integer;
-      b: string;
-      c: currency): boolean;
   public
     constructor Create;
     destructor Destroy; override;
@@ -98,76 +94,78 @@ end;
 
 { TApplicationRoot }
 
-constructor TApplicationRoot.Create(aMainModule: IMainModule);
+constructor TApplicationRoot.Create(aCheckoutFeature: ICheckoutFeature);
 begin
-  self.fMainModule := aMainModule;
+  self.fCheckoutFeature := aCheckoutFeature;
 end;
 
-function TApplicationRoot.ToString: string;
+procedure TApplicationRoot.GenerateDependencyReport;
 begin
-  Result := Format('%s [%s]', [self.ClassName,
-    sLineBreak + IndentString(fMainModule.ToString)]);
+  System.Writeln('Application Root Dependency Tree:');
+  System.Writeln('----------------------------------------------');
+  System.Writeln(fCheckoutFeature.ToString);
+  System.Writeln('----------------------------------------------');
 end;
 
 { TMainModule }
 
-constructor TMainModule.Create(
+constructor TCheckoutFeature.Create(
   aOrderManager: IOrderManager;
   aCustomerManager: ICustomerManager;
-  aOrderRepository: IOrderRepository);
+  aDatabaseContext: IDatabaseContext);
 begin
   self.fOrderManager := aOrderManager;
   self.fCustomerManager := aCustomerManager;
-  self.fOrderRepository := aOrderRepository;
+  self.fDatabaseContext := aDatabaseContext;
 end;
 
-function TMainModule.ToString: string;
+function TCheckoutFeature.ToString: string;
 begin
   Result := Format('%s [%s]', [self.ClassName,
-    sLineBreak + IndentString(fOrderRepository.ToString) +
+    sLineBreak + IndentString(fDatabaseContext.ToString) +
     IndentString(fCustomerManager.ToString) +
     IndentString(fOrderManager.ToString)]);
 end;
 
 { TOrderManager }
 
-constructor TOrderManager.Create(aOrderRepository: IOrderRepository);
+constructor TOrderManager.Create(aDatabaseContext: IDatabaseContext);
 begin
-  self.fOrderRepository := aOrderRepository;
+  self.fDatabaseContext := aDatabaseContext;
 end;
 
 function TOrderManager.ToString: string;
 begin
   Result := Format('%s [%s]', [self.ClassName,
-    sLineBreak + IndentString(fOrderRepository.ToString())]);
+    sLineBreak + IndentString(fDatabaseContext.ToString())]);
 end;
 
 { TCustomerManager }
 
-constructor TCustomerManager.Create(aOrderRepository: IOrderRepository);
+constructor TCustomerManager.Create(aDatabaseContext: IDatabaseContext);
 begin
-  self.fOrderRepository := aOrderRepository;
+  self.fDatabaseContext := aDatabaseContext;
 end;
 
 function TCustomerManager.ToString: string;
 begin
   Result := Format('%s [%s]', [self.ClassName,
-    sLineBreak + IndentString(fOrderRepository.ToString())]);
+    sLineBreak + IndentString(fDatabaseContext.ToString())]);
 end;
 
-{ TOrderRepository }
+{ TDatabaseContext }
 
 var
-  OrderRepositoryCounter: integer = 1;
+  DatabaseContextCounter: integer = 1;
 
-constructor TOrderRepository.Create(aDatabaseConnection: IConnectionFactory);
+constructor TDatabaseContext.Create(aDatabaseConnection: IConnectionFactory);
 begin
   self.fDatabaseConnection := aDatabaseConnection;
-  self.fIdent := OrderRepositoryCounter;
-  OrderRepositoryCounter := OrderRepositoryCounter + 1;
+  self.fIdent := DatabaseContextCounter;
+  DatabaseContextCounter := DatabaseContextCounter + 1;
 end;
 
-function TOrderRepository.ToString: string;
+function TDatabaseContext.ToString: string;
 var
   connection: TComponent;
 begin
@@ -202,14 +200,6 @@ begin
     ConnectionId := ConnectionId + 1;
   end;
   Result := fConnection;
-end;
-
-function TConnectionFactory.MethodA(
-  a: integer;
-  b: string;
-  c: currency): boolean;
-begin
-
 end;
 
 function TConnectionFactory.ToString: string;

@@ -22,14 +22,19 @@ uses
 
 class procedure TDemo01.BuildContainer(Container: TContainer);
 begin
+  // Data Layer:
   Container.RegisterType<IConnectionFactory, TConnectionFactory>().AsSingleton;
-  Container.RegisterType<IOrderRepository, TOrderRepository>();
+  Container.RegisterType<IDatabaseContext, TDatabaseContext>();
+  // Domain Layer
   Container.RegisterType<ICustomerManager, TCustomerManager>();
   Container.RegisterType<IOrderManager, TOrderManager>();
-  Container.RegisterType<IMainModule, TMainModule>();
+  Container.RegisterType<ICheckoutFeature, TCheckoutFeature>();
+
+  // Application Layer:
   Container.RegisterType<IApplicationRoot, TApplicationRoot>();
   // TODO: GlobalContainer.RegisterDecorator()
   // TODO: GlobalContainer.RegisterFactory()
+
   Container.Build;
 end;
 
@@ -39,7 +44,7 @@ var
 begin
   BuildContainer(GlobalContainer);
   App := GlobalContainer.Resolve<IApplicationRoot>;
-  System.Writeln(App.ToString());
+  App.GenerateDependencyReport();
 end;
 
 end.
