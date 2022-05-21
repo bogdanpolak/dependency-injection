@@ -26,8 +26,10 @@ type
     fCustomerManager: ICustomerManager;
   public
     [Inject]
-    constructor Create(aOrderManager: IOrderManager;
-      aCustomerManager: ICustomerManager; aOrderRepository: IOrderRepository);
+    constructor Create(
+      aOrderManager: IOrderManager;
+      aCustomerManager: ICustomerManager;
+      aOrderRepository: IOrderRepository);
     function ToString(): string; override;
   end;
 
@@ -62,6 +64,10 @@ type
   TConnectionFactory = class(TInterfacedObject, IConnectionFactory)
   private
     fConnection: TComponent;
+    function MethodA(
+      a: integer;
+      b: string;
+      c: currency): boolean;
   public
     constructor Create;
     destructor Destroy; override;
@@ -105,8 +111,10 @@ end;
 
 { TMainModule }
 
-constructor TMainModule.Create(aOrderManager: IOrderManager;
-  aCustomerManager: ICustomerManager; aOrderRepository: IOrderRepository);
+constructor TMainModule.Create(
+  aOrderManager: IOrderManager;
+  aCustomerManager: ICustomerManager;
+  aOrderRepository: IOrderRepository);
 begin
   self.fOrderManager := aOrderManager;
   self.fCustomerManager := aCustomerManager;
@@ -165,8 +173,8 @@ var
 begin
   connection := fDatabaseConnection.GetConnection();
   Result := Format('%s(%.3d) - %s [%s]', [self.ClassName, fIdent,
-    connection.Name,
-    sLineBreak + IndentString(fDatabaseConnection.ToString())]);
+    connection.Name, sLineBreak +
+    IndentString(fDatabaseConnection.ToString())]);
 end;
 
 { TConnectionFactory }
@@ -194,6 +202,14 @@ begin
     ConnectionId := ConnectionId + 1;
   end;
   Result := fConnection;
+end;
+
+function TConnectionFactory.MethodA(
+  a: integer;
+  b: string;
+  c: currency): boolean;
+begin
+
 end;
 
 function TConnectionFactory.ToString: string;

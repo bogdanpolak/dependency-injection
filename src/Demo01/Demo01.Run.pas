@@ -1,18 +1,26 @@
-unit Business.Composer;
+﻿unit Demo01.Run;
 
 interface
 
 uses
-  Spring.Container,
-  {}
-  Business.Interfaces,
-  Business.Classes;
+  Spring.Container;
 
-procedure BuildContainer(Container: TContainer);
+type
+  TDemo01 = class
+    class procedure Run;
+  private
+    class procedure BuildContainer(Container: TContainer);
+  end;
 
 implementation
 
-procedure BuildContainer(Container: TContainer);
+uses
+  Business.Classes,
+  Business.Interfaces;
+
+{ TDemo01 }
+
+class procedure TDemo01.BuildContainer(Container: TContainer);
 begin
   Container.RegisterType<IConnectionFactory, TConnectionFactory>().AsSingleton;
   Container.RegisterType<IOrderRepository, TOrderRepository>();
@@ -23,6 +31,15 @@ begin
   // TODO: GlobalContainer.RegisterDecorator()
   // TODO: GlobalContainer.RegisterFactory()
   Container.Build;
+end;
+
+class procedure TDemo01.Run;
+var
+  App: IApplicationRoot;
+begin
+  BuildContainer(GlobalContainer);
+  App := GlobalContainer.Resolve<IApplicationRoot>;
+  System.Writeln(App.ToString());
 end;
 
 end.

@@ -5,20 +5,17 @@ program GlobalContainerDemo;
 
 uses
   System.SysUtils,
-  Spring.Container,
-  Business.Classes in 'Business.Classes.pas',
-  Business.Interfaces in 'Business.Interfaces.pas',
   Utils.DeveloperMode in 'Utils\Utils.DeveloperMode.pas',
-  Business.Composer in 'Business.Composer.pas';
+  Business.Classes in 'Demo01\Business.Classes.pas',
+  Business.Interfaces in 'Demo01\Business.Interfaces.pas',
+  Demo01.Run in 'Demo01\Demo01.Run.pas';
 
-var
-  App: IApplicationRoot;
 begin
   randomize;
   try
-    BuildContainer(GlobalContainer);
-    App := GlobalContainer.Resolve<IApplicationRoot>;
-    System.Writeln(App.ToString());
+
+    TDemo01.Run;
+
   except
     on E: Exception do
       Writeln(E.ClassName, ': ', E.Message);
