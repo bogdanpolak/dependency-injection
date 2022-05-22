@@ -7,7 +7,7 @@ uses
 
 type
   TDemo01 = class
-    class procedure Run;
+    class procedure Run();
   private
     class procedure BuildContainer(Container: TContainer);
   end;
@@ -16,7 +16,8 @@ implementation
 
 uses
   Business.Classes,
-  Business.Interfaces;
+  Business.Interfaces,
+  ApplicationRoot;
 
 { TDemo01 }
 
@@ -41,7 +42,7 @@ begin
   Container.Build;
 end;
 
-class procedure TDemo01.Run;
+class procedure TDemo01.Run();
 var
   App: TApplicationRoot;
 begin

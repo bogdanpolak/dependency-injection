@@ -11,16 +11,6 @@ uses
   Business.Interfaces;
 
 type
-  TApplicationRoot = class
-  private
-    fCheckoutFeature: ICheckoutFeature;
-  public
-    [Inject]
-    constructor Create(aCheckoutFeature: ICheckoutFeature);
-    procedure GenerateDependencyReport();
-    procedure ExecuteCheckout;
-  end;
-
   TCheckoutFeature = class(TInterfacedObject, ICheckoutFeature)
   private
     fDatabaseContext: IDatabaseContext;
@@ -35,7 +25,7 @@ type
       aCustomerManager: ICustomerManager;
       aDatabaseContext: IDatabaseContext);
     procedure CheckoutCart(const aCart: TComponent);
-    function ToString(): string; override;
+    function GetDependencyTree(): string;
   end;
 
   TMembershipService = class(TInterfacedObject, IMembershipService)
@@ -44,7 +34,7 @@ type
   public
     [Inject]
     constructor Create(aDatabaseContext: IDatabaseContext);
-    function ToString(): string; override;
+    function GetDependencyTree(): string;
     function IsCardActive(const aCardNumber: string): boolean;
   end;
 
@@ -54,7 +44,7 @@ type
   public
     [Inject]
     constructor Create(aDatabaseContext: IDatabaseContext);
-    function ToString(): string; override;
+    function GetDependencyTree(): string;
   end;
 
   TOrderGenerator = class(TInterfacedObject, IOrderGenerator)
@@ -63,7 +53,7 @@ type
   public
     [Inject]
     constructor Create(aDatabaseContext: IDatabaseContext);
-    function ToString(): string; override;
+    function GetDependencyTree(): string;
   end;
 
   TDatabaseContext = class(TInterfacedObject, IDatabaseContext)
@@ -73,7 +63,7 @@ type
   public
     [Inject]
     constructor Create(aDatabaseConnection: IConnectionFactory);
-    function ToString(): string; override;
+    function GetDependencyTree(): string;
   end;
 
   TConnectionFactory = class(TInterfacedObject, IConnectionFactory)
@@ -83,61 +73,10 @@ type
     constructor Create;
     destructor Destroy; override;
     function GetConnection(): TComponent;
-    function ToString(): string; override;
+    function GetDependencyTree(): string;
   end;
 
 implementation
-
-const
-  Indentation = '    ';
-
-function IndentString(const s: string): string;
-var
-  sl: TStringList;
-  iLine: integer;
-begin
-  sl := TStringList.Create;
-  try
-    sl.Text := s;
-    for iLine := 0 to sl.Count - 1 do
-      sl[iLine] := Indentation + sl[iLine];
-    Result := sl.Text;
-  finally
-    sl.Free;
-  end;
-end;
-
-{ TApplicationRoot }
-
-const
-  PrivateBuyer: NativeInt = 1000000;
-  BussinesBuyer: NativeInt = 2000000;
-
-procedure TApplicationRoot.ExecuteCheckout();
-var
-  aCart: TComponent;
-begin
-  aCart := TComponent.Create(nil);
-  with aCart do
-  begin
-    Name := 'Cart0001';
-    Tag := BussinesBuyer+12345;
-  end;
-  fCheckoutFeature.CheckoutCart(aCart);
-end;
-
-constructor TApplicationRoot.Create(aCheckoutFeature: ICheckoutFeature);
-begin
-  self.fCheckoutFeature := aCheckoutFeature;
-end;
-
-procedure TApplicationRoot.GenerateDependencyReport;
-begin
-  System.Writeln('Application Root Dependency Tree:');
-  System.Writeln('----------------------------------------------');
-  System.Writeln(fCheckoutFeature.ToString);
-  System.Writeln('----------------------------------------------');
-end;
 
 { TCheckoutFeature }
 
@@ -161,13 +100,13 @@ begin
 //   aDiscount := IfThen(isActive, 10, 0);
 end;
 
-function TCheckoutFeature.ToString: string;
+function TCheckoutFeature.GetDependencyTree: string;
 begin
-  Result := Format('%s [%s]', [self.ClassName,
-    sLineBreak + IndentString(fMembershipService.ToString()) +
-    IndentString(fDatabaseContext.ToString) +
-    IndentString(fCustomerManager.ToString) +
-    IndentString(fOredrGenerator.ToString)]);
+  Result := self.ClassName + '{' +
+    fMembershipService.GetDependencyTree() + ',' +
+    fDatabaseContext.GetDependencyTree + ',' +
+    fCustomerManager.GetDependencyTree + ',' +
+    fOredrGenerator.GetDependencyTree + '}';
 end;
 
 { TMembershipService }
@@ -177,10 +116,9 @@ begin
   fDatabaseContext := aDatabaseContext;
 end;
 
-function TMembershipService.ToString: string;
+function TMembershipService.GetDependencyTree: string;
 begin
-  Result := Format('%s [%s]', [self.ClassName,
-    sLineBreak + IndentString(fDatabaseContext.ToString())]);
+  Result := self.ClassName + '{' + fDatabaseContext.GetDependencyTree() +'}';
 end;
 
 function TMembershipService.IsCardActive(const aCardNumber
@@ -199,10 +137,9 @@ begin
   self.fDatabaseContext := aDatabaseContext;
 end;
 
-function TCustomerManager.ToString: string;
+function TCustomerManager.GetDependencyTree: string;
 begin
-  Result := Format('%s [%s]', [self.ClassName,
-    sLineBreak + IndentString(fDatabaseContext.ToString())]);
+  Result := self.ClassName + '{' + fDatabaseContext.GetDependencyTree() + '}';
 end;
 
 { TOrderGenerator }
@@ -212,10 +149,9 @@ begin
   self.fDatabaseContext := aDatabaseContext;
 end;
 
-function TOrderGenerator.ToString: string;
+function TOrderGenerator.GetDependencyTree: string;
 begin
-  Result := Format('%s [%s]', [self.ClassName,
-    sLineBreak + IndentString(fDatabaseContext.ToString())]);
+  Result := self.ClassName + '{' + fDatabaseContext.GetDependencyTree() + '}';
 end;
 
 { TDatabaseContext }
@@ -230,14 +166,13 @@ begin
   DatabaseContextCounter := DatabaseContextCounter + 1;
 end;
 
-function TDatabaseContext.ToString: string;
+function TDatabaseContext.GetDependencyTree: string;
 var
   connection: TComponent;
 begin
   connection := fDatabaseConnection.GetConnection();
-  Result := Format('%s(%.3d) - %s [%s]', [self.ClassName, fIdent,
-    connection.Name, sLineBreak +
-    IndentString(fDatabaseConnection.ToString())]);
+  Result := Format('%s(%.3d)', [self.ClassName, fIdent]) + '{' +
+    fDatabaseConnection.GetDependencyTree() + '}';
 end;
 
 { TConnectionFactory }
@@ -267,9 +202,9 @@ begin
   Result := fConnection;
 end;
 
-function TConnectionFactory.ToString: string;
+function TConnectionFactory.GetDependencyTree: string;
 begin
-  Result := Format('%s', [self.ClassName]);
+  Result := self.ClassName;
 end;
 
 end.

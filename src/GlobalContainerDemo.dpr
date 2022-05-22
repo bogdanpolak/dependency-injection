@@ -8,13 +8,14 @@ uses
   Utils.DeveloperMode in 'Utils\Utils.DeveloperMode.pas',
   Business.Classes in 'Demo01\Business.Classes.pas',
   Business.Interfaces in 'Demo01\Business.Interfaces.pas',
-  Demo01.Run in 'Demo01\Demo01.Run.pas';
+  Demo01.Run in 'Demo01\Demo01.Run.pas',
+  ApplicationRoot in 'Demo01\ApplicationRoot.pas';
 
 begin
   randomize;
   try
 
-    TDemo01.Run;
+    TDemo01.Run();
 
   except
     on E: Exception do
