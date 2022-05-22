@@ -29,11 +29,11 @@ begin
   // Domain Layer
   Container.RegisterType<ICustomerManager, TCustomerManager>();
   Container.RegisterType<IOrderGenerator, TOrderGenerator>();
-  Container.RegisterType<ILoyalityProgramService, TLoyalityProgramService>();
+  Container.RegisterType<IMembershipService, TMembershipService>();
   Container.RegisterType<ICheckoutFeature, TCheckoutFeature>();
 
   // Application Layer:
-  Container.RegisterType<IApplicationRoot, TApplicationRoot>();
+  Container.RegisterType<TApplicationRoot>();
 
   // TODO: GlobalContainer.RegisterDecorator()
   // TODO: GlobalContainer.RegisterFactory()
@@ -43,10 +43,10 @@ end;
 
 class procedure TDemo01.Run;
 var
-  App: IApplicationRoot;
+  App: TApplicationRoot;
 begin
   BuildContainer(GlobalContainer);
-  App := GlobalContainer.Resolve<IApplicationRoot>;
+  App := GlobalContainer.Resolve<TApplicationRoot>;
   App.GenerateDependencyReport();
 end;
 

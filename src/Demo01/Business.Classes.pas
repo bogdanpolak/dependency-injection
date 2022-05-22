@@ -11,38 +11,34 @@ uses
   Business.Interfaces;
 
 type
-  TApplicationRoot = class(TInterfacedObject, IApplicationRoot)
+  TApplicationRoot = class
   private
     fCheckoutFeature: ICheckoutFeature;
   public
     [Inject]
     constructor Create(aCheckoutFeature: ICheckoutFeature);
     procedure GenerateDependencyReport();
-    procedure Checkout(
-      aMemberCard: string;
-      const aCart: TObject);
+    procedure ExecuteCheckout;
   end;
 
   TCheckoutFeature = class(TInterfacedObject, ICheckoutFeature)
   private
     fDatabaseContext: IDatabaseContext;
-    fLoyalityProgramService: ILoyalityProgramService;
-    fOredrGenerator: IOrderGenerator;
+    fMembershipService: IMembershipService;
     fCustomerManager: ICustomerManager;
-    fPriceModifier: currency;
+    fOredrGenerator: IOrderGenerator;
   public
     [Inject]
     constructor Create(
-      aLoyalityProgramService: ILoyalityProgramService;
+      aMembershipService: IMembershipService;
       aOrderGenerator: IOrderGenerator;
       aCustomerManager: ICustomerManager;
       aDatabaseContext: IDatabaseContext);
-    procedure UseLoyalityProgramCard(const aCardNumber: string);
-    procedure ProcessCart(const aCart: TObject);
+    procedure CheckoutCart(const aCart: TComponent);
     function ToString(): string; override;
   end;
 
-  TLoyalityProgramService = class(TInterfacedObject, ILoyalityProgramService)
+  TMembershipService = class(TInterfacedObject, IMembershipService)
   private
     fDatabaseContext: IDatabaseContext;
   public
@@ -113,15 +109,21 @@ end;
 
 { TApplicationRoot }
 
-procedure TApplicationRoot.Checkout(
-  aMemberCard: string;
-  const aCart: TObject);
+const
+  PrivateBuyer: NativeInt = 1000000;
+  BussinesBuyer: NativeInt = 2000000;
+
+procedure TApplicationRoot.ExecuteCheckout();
+var
+  aCart: TComponent;
 begin
-  if aMemberCard <> '' then
+  aCart := TComponent.Create(nil);
+  with aCart do
   begin
-    fCheckoutFeature.UseLoyalityProgramCard(aMemberCard);
+    Name := 'Cart0001';
+    Tag := BussinesBuyer+12345;
   end;
-  fCheckoutFeature.ProcessCart(aCart);
+  fCheckoutFeature.CheckoutCart(aCart);
 end;
 
 constructor TApplicationRoot.Create(aCheckoutFeature: ICheckoutFeature);
@@ -140,55 +142,48 @@ end;
 { TCheckoutFeature }
 
 constructor TCheckoutFeature.Create(
-  aLoyalityProgramService: ILoyalityProgramService;
+  aMembershipService: IMembershipService;
   aOrderGenerator: IOrderGenerator;
   aCustomerManager: ICustomerManager;
   aDatabaseContext: IDatabaseContext);
 begin
-  self.fLoyalityProgramService := aLoyalityProgramService;
+  self.fMembershipService := aMembershipService;
   self.fOredrGenerator := aOrderGenerator;
   self.fCustomerManager := aCustomerManager;
   self.fDatabaseContext := aDatabaseContext;
 end;
 
-procedure TCheckoutFeature.UseLoyalityProgramCard(const aCardNumber: string);
-var
-  isActive: boolean;
-  aDiscount: integer;
+procedure TCheckoutFeature.CheckoutCart(const aCart: TComponent);
+// var
+//   isActive: boolean;
 begin
-  isActive := fLoyalityProgramService.IsCardActive(aCardNumber);
-  aDiscount := IfThen(isActive, 10, 0);
-  fPriceModifier := (100 - aDiscount) / 100;
-end;
-
-procedure TCheckoutFeature.ProcessCart(const aCart: TObject);
-begin
-
+//   isActive := fMembershipService.IsCardActive(aCardNumber);
+//   aDiscount := IfThen(isActive, 10, 0);
 end;
 
 function TCheckoutFeature.ToString: string;
 begin
   Result := Format('%s [%s]', [self.ClassName,
-    sLineBreak + IndentString(fLoyalityProgramService.ToString()) +
+    sLineBreak + IndentString(fMembershipService.ToString()) +
     IndentString(fDatabaseContext.ToString) +
     IndentString(fCustomerManager.ToString) +
     IndentString(fOredrGenerator.ToString)]);
 end;
 
-{ TLoyalityProgramService }
+{ TMembershipService }
 
-constructor TLoyalityProgramService.Create(aDatabaseContext: IDatabaseContext);
+constructor TMembershipService.Create(aDatabaseContext: IDatabaseContext);
 begin
   fDatabaseContext := aDatabaseContext;
 end;
 
-function TLoyalityProgramService.ToString: string;
+function TMembershipService.ToString: string;
 begin
   Result := Format('%s [%s]', [self.ClassName,
     sLineBreak + IndentString(fDatabaseContext.ToString())]);
 end;
 
-function TLoyalityProgramService.IsCardActive(const aCardNumber
+function TMembershipService.IsCardActive(const aCardNumber
   : string): boolean;
 var
   aNumber: integer;
