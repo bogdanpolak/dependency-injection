@@ -15,14 +15,12 @@ type
   private
     fDatabaseContext: IDatabaseContext;
     fMembershipService: IMembershipService;
-    fCustomerManager: ICustomerManager;
     fOredrGenerator: IOrderGenerator;
   public
     [Inject]
     constructor Create(
       aMembershipService: IMembershipService;
       aOrderGenerator: IOrderGenerator;
-      aCustomerManager: ICustomerManager;
       aDatabaseContext: IDatabaseContext);
     procedure CheckoutCart(const aCart: TComponent);
     function GetDependencyTree(): string;
@@ -36,15 +34,6 @@ type
     constructor Create(aDatabaseContext: IDatabaseContext);
     function GetDependencyTree(): string;
     function IsCardActive(const aCardNumber: string): boolean;
-  end;
-
-  TCustomerManager = class(TInterfacedObject, ICustomerManager)
-  private
-    fDatabaseContext: IDatabaseContext;
-  public
-    [Inject]
-    constructor Create(aDatabaseContext: IDatabaseContext);
-    function GetDependencyTree(): string;
   end;
 
   TOrderGenerator = class(TInterfacedObject, IOrderGenerator)
@@ -83,12 +72,10 @@ implementation
 constructor TCheckoutFeature.Create(
   aMembershipService: IMembershipService;
   aOrderGenerator: IOrderGenerator;
-  aCustomerManager: ICustomerManager;
   aDatabaseContext: IDatabaseContext);
 begin
   self.fMembershipService := aMembershipService;
   self.fOredrGenerator := aOrderGenerator;
-  self.fCustomerManager := aCustomerManager;
   self.fDatabaseContext := aDatabaseContext;
 end;
 
@@ -105,7 +92,6 @@ begin
   Result := self.ClassName + '{' +
     fMembershipService.GetDependencyTree() + ',' +
     fDatabaseContext.GetDependencyTree + ',' +
-    fCustomerManager.GetDependencyTree + ',' +
     fOredrGenerator.GetDependencyTree + '}';
 end;
 
@@ -128,18 +114,6 @@ var
 begin
   Result := aCardNumber.StartsWith('A') and TryStrToInt(aCardNumber, aNumber)
     and (aNumber > 100);
-end;
-
-{ TCustomerManager }
-
-constructor TCustomerManager.Create(aDatabaseContext: IDatabaseContext);
-begin
-  self.fDatabaseContext := aDatabaseContext;
-end;
-
-function TCustomerManager.GetDependencyTree: string;
-begin
-  Result := self.ClassName + '{' + fDatabaseContext.GetDependencyTree() + '}';
 end;
 
 { TOrderGenerator }
