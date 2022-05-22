@@ -12,6 +12,12 @@ type
     function GetDependencyTree(): string;
   end;
 
+  IBuyerProvider = interface
+    ['{45E620F7-E7FD-423E-9579-287CA8D3F534}']
+    function GetBayer(): string;
+    function GetDependencyTree(): string;
+  end;
+
   IMembershipService = interface
     ['{488F4CAF-26D1-4DA8-919B-0F8FB45C54D7}']
     function IsCardActive(const aCardNumber: string): boolean;

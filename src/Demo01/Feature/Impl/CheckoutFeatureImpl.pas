@@ -14,15 +14,25 @@ type
   TCheckoutFeature = class(TInterfacedObject, ICheckoutFeature)
   private
     fDatabaseContext: IDatabaseContext;
-    fMembershipService: IMembershipService;
+    fBuyerProvider: IBuyerProvider;
     fInvoiceService: IInvoiceService;
   public
     [Inject]
     constructor Create(
-      aMembershipService: IMembershipService;
+      aBuyerProvider: IBuyerProvider;
       aInvoiceService: IInvoiceService;
       aDatabaseContext: IDatabaseContext);
     procedure CheckoutCart(const aCart: TComponent);
+    function GetDependencyTree(): string;
+  end;
+
+  TBuyerProvider = class(TInterfacedObject, IBuyerProvider)
+  private
+    fMembershipService: IMembershipService;
+  public
+    [Inject]
+    constructor Create(aMembershipService: IMembershipService);
+    function GetBayer(): string;
     function GetDependencyTree(): string;
   end;
 
@@ -70,29 +80,45 @@ implementation
 { TCheckoutFeature }
 
 constructor TCheckoutFeature.Create(
-  aMembershipService: IMembershipService;
+  aBuyerProvider: IBuyerProvider;
   aInvoiceService: IInvoiceService;
   aDatabaseContext: IDatabaseContext);
 begin
-  self.fMembershipService := aMembershipService;
+  self.fBuyerProvider := aBuyerProvider;
   self.fInvoiceService := aInvoiceService;
   self.fDatabaseContext := aDatabaseContext;
 end;
 
 procedure TCheckoutFeature.CheckoutCart(const aCart: TComponent);
 // var
-//   isActive: boolean;
+// isActive: boolean;
 begin
-//   isActive := fMembershipService.IsCardActive(aCardNumber);
-//   aDiscount := IfThen(isActive, 10, 0);
+  // isActive := fMembershipService.IsCardActive(aCardNumber);
+  // aDiscount := IfThen(isActive, 10, 0);
 end;
 
 function TCheckoutFeature.GetDependencyTree: string;
 begin
-  Result := self.ClassName + '{' +
-    fMembershipService.GetDependencyTree() + ',' +
+  Result := self.ClassName + '{' + fBuyerProvider.GetDependencyTree() + ',' +
     fDatabaseContext.GetDependencyTree + ',' +
     fInvoiceService.GetDependencyTree + '}';
+end;
+
+{ TBuyerProvider }
+
+constructor TBuyerProvider.Create(aMembershipService: IMembershipService);
+begin
+  fMembershipService := aMembershipService;
+end;
+
+function TBuyerProvider.GetBayer: string;
+begin
+  Result := '';
+end;
+
+function TBuyerProvider.GetDependencyTree: string;
+begin
+  Result := self.ClassName + '{' + fMembershipService.GetDependencyTree() + '}';
 end;
 
 { TMembershipService }
@@ -104,11 +130,10 @@ end;
 
 function TMembershipService.GetDependencyTree: string;
 begin
-  Result := self.ClassName + '{' + fDatabaseContext.GetDependencyTree() +'}';
+  Result := self.ClassName + '{' + fDatabaseContext.GetDependencyTree() + '}';
 end;
 
-function TMembershipService.IsCardActive(const aCardNumber
-  : string): boolean;
+function TMembershipService.IsCardActive(const aCardNumber: string): boolean;
 var
   aNumber: integer;
 begin

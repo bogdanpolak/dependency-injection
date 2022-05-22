@@ -28,9 +28,10 @@ begin
   Container.RegisterType<IDatabaseContext, TDatabaseContext>();
 
   // Domain Layer
-  Container.RegisterType<IInvoiceService, TInvoiceService>();
-  Container.RegisterType<IMembershipService, TMembershipService>();
   Container.RegisterType<ICheckoutFeature, TCheckoutFeature>();
+  Container.RegisterType<IBuyerProvider, TBuyerProvider>();
+  Container.RegisterType<IMembershipService, TMembershipService>();
+  Container.RegisterType<IInvoiceService, TInvoiceService>();
 
   // Application Layer:
   Container.RegisterType<TApplicationRoot>();
