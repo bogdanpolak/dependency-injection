@@ -28,7 +28,7 @@ begin
   Container.RegisterType<IDatabaseContext, TDatabaseContext>();
 
   // Domain Layer
-  Container.RegisterType<IOrderGenerator, TOrderGenerator>();
+  Container.RegisterType<IInvoiceService, TInvoiceService>();
   Container.RegisterType<IMembershipService, TMembershipService>();
   Container.RegisterType<ICheckoutFeature, TCheckoutFeature>();
 

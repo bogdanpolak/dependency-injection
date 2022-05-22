@@ -15,12 +15,12 @@ type
   private
     fDatabaseContext: IDatabaseContext;
     fMembershipService: IMembershipService;
-    fOredrGenerator: IOrderGenerator;
+    fInvoiceService: IInvoiceService;
   public
     [Inject]
     constructor Create(
       aMembershipService: IMembershipService;
-      aOrderGenerator: IOrderGenerator;
+      aInvoiceService: IInvoiceService;
       aDatabaseContext: IDatabaseContext);
     procedure CheckoutCart(const aCart: TComponent);
     function GetDependencyTree(): string;
@@ -36,7 +36,7 @@ type
     function IsCardActive(const aCardNumber: string): boolean;
   end;
 
-  TOrderGenerator = class(TInterfacedObject, IOrderGenerator)
+  TInvoiceService = class(TInterfacedObject, IInvoiceService)
   private
     fDatabaseContext: IDatabaseContext;
   public
@@ -71,11 +71,11 @@ implementation
 
 constructor TCheckoutFeature.Create(
   aMembershipService: IMembershipService;
-  aOrderGenerator: IOrderGenerator;
+  aInvoiceService: IInvoiceService;
   aDatabaseContext: IDatabaseContext);
 begin
   self.fMembershipService := aMembershipService;
-  self.fOredrGenerator := aOrderGenerator;
+  self.fInvoiceService := aInvoiceService;
   self.fDatabaseContext := aDatabaseContext;
 end;
 
@@ -92,7 +92,7 @@ begin
   Result := self.ClassName + '{' +
     fMembershipService.GetDependencyTree() + ',' +
     fDatabaseContext.GetDependencyTree + ',' +
-    fOredrGenerator.GetDependencyTree + '}';
+    fInvoiceService.GetDependencyTree + '}';
 end;
 
 { TMembershipService }
@@ -116,14 +116,14 @@ begin
     and (aNumber > 100);
 end;
 
-{ TOrderGenerator }
+{ TInvoiceService }
 
-constructor TOrderGenerator.Create(aDatabaseContext: IDatabaseContext);
+constructor TInvoiceService.Create(aDatabaseContext: IDatabaseContext);
 begin
   self.fDatabaseContext := aDatabaseContext;
 end;
 
-function TOrderGenerator.GetDependencyTree: string;
+function TInvoiceService.GetDependencyTree: string;
 begin
   Result := self.ClassName + '{' + fDatabaseContext.GetDependencyTree() + '}';
 end;
