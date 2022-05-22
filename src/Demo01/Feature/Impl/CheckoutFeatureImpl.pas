@@ -1,4 +1,4 @@
-unit Business.Classes;
+unit CheckoutFeatureImpl;
 
 interface
 
@@ -8,7 +8,7 @@ uses
   System.Math,
   Spring.Container.Common,
   {}
-  Business.Interfaces;
+  CheckoutFeature;
 
 type
   TCheckoutFeature = class(TInterfacedObject, ICheckoutFeature)

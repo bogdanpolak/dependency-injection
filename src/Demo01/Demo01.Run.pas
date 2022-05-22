@@ -15,8 +15,8 @@ type
 implementation
 
 uses
-  Business.Classes,
-  Business.Interfaces,
+  CheckoutFeature,
+  CheckoutFeatureImpl,
   ApplicationRoot;
 
 { TDemo01 }

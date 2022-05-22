@@ -8,7 +8,7 @@ uses
   System.Math,
   Spring.Container.Common,
   {}
-  Business.Interfaces;
+  CheckoutFeature;
 
 type
   TApplicationRoot = class
@@ -67,7 +67,7 @@ begin
   for idx := 0 to aTree.Length - 1 do
   begin
     ch := aTree.Chars[idx];
-    if (ch in ['{', '}', ',']) then
+    if CharInSet(ch, ['{', '}', ',']) then
     begin
       if (start < idx) then
       begin

@@ -5,10 +5,10 @@ program GlobalContainerDemo;
 
 uses
   System.SysUtils,
-  Utils.DeveloperMode in 'Utils\Utils.DeveloperMode.pas',
+  Utils.DeveloperMode in 'Utils.DeveloperMode.pas',
   ApplicationRoot in 'Demo01\ApplicationRoot.pas',
-  Business.Classes in 'Demo01\Business.Classes.pas',
-  Business.Interfaces in 'Demo01\Business.Interfaces.pas',
+  CheckoutFeatureImpl in 'Demo01\Feature\Impl\CheckoutFeatureImpl.pas',
+  CheckoutFeature in 'Demo01\Feature\CheckoutFeature.pas',
   Demo01.Run in 'Demo01\Demo01.Run.pas';
 
 begin
