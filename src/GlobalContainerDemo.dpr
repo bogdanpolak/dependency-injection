@@ -7,9 +7,11 @@ uses
   System.SysUtils,
   Utils.DeveloperMode in 'Utils.DeveloperMode.pas',
   ApplicationRoot in 'Demo01\ApplicationRoot.pas',
-  CheckoutFeatureImpl in 'Demo01\Feature\Impl\CheckoutFeatureImpl.pas',
+  CheckoutFeatureImpl in 'Demo01\Feature\CheckoutFeatureImpl.pas',
   CheckoutFeature in 'Demo01\Feature\CheckoutFeature.pas',
-  Demo01.Run in 'Demo01\Demo01.Run.pas';
+  Demo01.Run in 'Demo01\Demo01.Run.pas',
+  ShoppingCartBuilderC in 'Demo01\ShoppingCartBuilderC.pas',
+  ShoppingCartBuilder in 'Demo01\ShoppingCartBuilder.pas';
 
 begin
   randomize;

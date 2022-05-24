@@ -22,7 +22,7 @@ type
       aBuyerProvider: IBuyerProvider;
       aInvoiceService: IInvoiceService;
       aDatabaseContext: IDatabaseContext);
-    procedure CheckoutCart(const aCart: TComponent);
+    procedure CheckoutCart(const aCart: string);
     function GetDependencyTree(): string;
   end;
 
@@ -89,10 +89,12 @@ begin
   self.fDatabaseContext := aDatabaseContext;
 end;
 
-procedure TCheckoutFeature.CheckoutCart(const aCart: TComponent);
+procedure TCheckoutFeature.CheckoutCart(const aCart: string);
 // var
 // isActive: boolean;
 begin
+  System.Writeln(fBuyerProvider.GetBayer());
+
   // isActive := fMembershipService.IsCardActive(aCardNumber);
   // aDiscount := IfThen(isActive, 10, 0);
 end;
@@ -112,8 +114,12 @@ begin
 end;
 
 function TBuyerProvider.GetBayer: string;
+const
+  NumberOfCustomers = 5;
+  customers: array [0 .. NumberOfCustomers - 1] of string = ('Amazon', 'Google',
+    'Apple', 'Microsoft', 'Embarcadero');
 begin
-  Result := '';
+  Result := customers[random(NumberOfCustomers)];
 end;
 
 function TBuyerProvider.GetDependencyTree: string;

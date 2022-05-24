@@ -17,6 +17,8 @@ implementation
 uses
   CheckoutFeature,
   CheckoutFeatureImpl,
+  ShoppingCartBuilder,
+  ShoppingCartBuilderC,
   ApplicationRoot;
 
 { TDemo01 }
@@ -28,6 +30,7 @@ begin
   Container.RegisterType<IDatabaseContext, TDatabaseContext>();
 
   // Domain Layer
+  Container.RegisterType<IShoppingCartBuilder, TShoppingCartBuilder>();
   Container.RegisterType<ICheckoutFeature, TCheckoutFeature>();
   Container.RegisterType<IBuyerProvider, TBuyerProvider>();
   Container.RegisterType<IMembershipService, TMembershipService>();
@@ -49,6 +52,7 @@ begin
   BuildContainer(GlobalContainer);
   App := GlobalContainer.Resolve<TApplicationRoot>;
   App.GenerateDependencyReport();
+  App.ExecuteCheckout();
 end;
 
 end.
