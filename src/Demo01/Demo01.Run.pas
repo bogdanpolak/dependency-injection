@@ -16,7 +16,7 @@ implementation
 
 uses
   CheckoutFeature,
-  CheckoutFeatureImpl,
+  CheckoutFeatureC,
   ShoppingCartBuilder,
   ShoppingCartBuilderC,
   ApplicationRoot;
