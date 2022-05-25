@@ -42,7 +42,6 @@ end;
 function TShoppingCartBuilder.Build(const aItems: integer): string;
 var
   list: IList<string>;
-  idx: integer;
 begin
   list := TCollections.CreateList<string>(_items.ToArray());
   while (list.Count > aItems) and (aItems > 0) do

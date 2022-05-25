@@ -12,7 +12,15 @@ uses
   Demo01.Run in 'Demo01\Demo01.Run.pas',
   ShoppingCartBuilderC in 'Demo01\ShoppingCartBuilderC.pas',
   ShoppingCartBuilder in 'Demo01\ShoppingCartBuilder.pas',
-  Utils.InterfacedTrackingObject in 'Utils.InterfacedTrackingObject.pas';
+  Utils.InterfacedTrackingObject in 'Utils.InterfacedTrackingObject.pas',
+  BuyerProviderC in 'Demo01\Feature\BuyerProviderC.pas',
+  BuyerProvider in 'Demo01\Feature\BuyerProvider.pas',
+  MembershipServiceC in 'Demo01\Feature\MembershipServiceC.pas',
+  MembershipService in 'Demo01\Feature\MembershipService.pas',
+  InvoiceServiceC in 'Demo01\Feature\InvoiceServiceC.pas',
+  InvoiceService in 'Demo01\Feature\InvoiceService.pas',
+  DataLayerC in 'Demo01\DataLayerC.pas',
+  DataLayer in 'Demo01\DataLayer.pas';
 
 begin
   randomize;

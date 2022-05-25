@@ -85,7 +85,6 @@ var
   aTree: string;
   ch: Char;
 begin
-  idx := 0;
   start := 0;
   level := 0;
   aTree := fShoppingCartBuilder.GetDependencyTree() + ',' +

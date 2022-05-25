@@ -17,8 +17,16 @@ implementation
 uses
   CheckoutFeature,
   CheckoutFeatureC,
+  BuyerProvider,
+  BuyerProviderC,
+  MembershipService,
+  MembershipServiceC,
+  InvoiceService,
+  InvoiceServiceC,
   ShoppingCartBuilder,
   ShoppingCartBuilderC,
+  DataLayer,
+  DataLayerC,
   ApplicationRoot;
 
 { TDemo01 }
