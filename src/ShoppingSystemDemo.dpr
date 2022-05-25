@@ -11,7 +11,8 @@ uses
   CheckoutFeature in 'Demo01\Feature\CheckoutFeature.pas',
   Demo01.Run in 'Demo01\Demo01.Run.pas',
   ShoppingCartBuilderC in 'Demo01\ShoppingCartBuilderC.pas',
-  ShoppingCartBuilder in 'Demo01\ShoppingCartBuilder.pas';
+  ShoppingCartBuilder in 'Demo01\ShoppingCartBuilder.pas',
+  Utils.InterfacedTrackingObject in 'Utils.InterfacedTrackingObject.pas';
 
 begin
   randomize;
@@ -25,6 +26,7 @@ begin
   end;
   if IsDeveloperMode() then
   begin
+    ReportMemoryLeaksOnShutdown := true;
     System.Write('... press Enter to close ...');
     System.Readln;
   end;

@@ -11,6 +11,7 @@ type
       const aName: string;
       const aPrice: currency): IShoppingCartBuilder;
     function Build(const aItems: integer): string;
+    function GetDependencyTree(): string;
   end;
 
 implementation

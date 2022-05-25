@@ -17,7 +17,7 @@ type
   private
     fCheckoutFeature: ICheckoutFeature;
     fShoppingCartBuilder: IShoppingCartBuilder;
-    procedure DisplayDependencyTree(const aTree: string);
+    procedure DisplayDependencyTree();
   public
     [Inject]
     constructor Create(
@@ -75,18 +75,21 @@ procedure TApplicationRoot.GenerateDependencyReport;
 begin
   System.Writeln('Application Root Dependency Tree:');
   System.Writeln('----------------------------------------------');
-  DisplayDependencyTree(fCheckoutFeature.GetDependencyTree());
+  DisplayDependencyTree();
   System.Writeln('----------------------------------------------');
 end;
 
-procedure TApplicationRoot.DisplayDependencyTree(const aTree: string);
+procedure TApplicationRoot.DisplayDependencyTree();
 var
   idx, start, level: Integer;
+  aTree: string;
   ch: Char;
 begin
   idx := 0;
   start := 0;
   level := 0;
+  aTree := fShoppingCartBuilder.GetDependencyTree() + ',' +
+    fCheckoutFeature.GetDependencyTree();
   for idx := 0 to aTree.Length - 1 do
   begin
     ch := aTree.Chars[idx];
