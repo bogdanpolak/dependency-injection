@@ -7,10 +7,11 @@ uses
   System.Generics.Collections,
   Spring.Collections,
   {}
-  ShoppingCartBuilder;
+  ShoppingCartBuilder,
+  Utils.InterfacedTrackingObject;
 
 type
-  TShoppingCartBuilder = class(TInterfacedObject, IShoppingCartBuilder)
+  TShoppingCartBuilder = class(TInterfacedTrackingObject, IShoppingCartBuilder)
   private
     _items: IList<string>;
   public
@@ -44,7 +45,7 @@ var
   idx: integer;
 begin
   list := TCollections.CreateList<string>(_items.ToArray());
-  while (list.Count > aItems) and (aItems>0) do
+  while (list.Count > aItems) and (aItems > 0) do
   begin
     list.Delete(random(list.Count));
   end;
@@ -53,12 +54,13 @@ end;
 
 constructor TShoppingCartBuilder.Create;
 begin
+  inherited;
   _items := TCollections.CreateList<string>();
 end;
 
 function TShoppingCartBuilder.GetDependencyTree: string;
 begin
-  Result := self.ClassName;
+  Result := self.ClassNameWithInstanceId();
 end;
 
 end.
