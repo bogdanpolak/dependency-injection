@@ -21,6 +21,7 @@ type
       const aName: string;
       const aPrice: currency): IShoppingCartBuilder;
     function Build(const aItems: integer): string;
+    function GetDependencyTree(): string;
   end;
 
 implementation
@@ -53,6 +54,11 @@ end;
 constructor TShoppingCartBuilder.Create;
 begin
   _items := TCollections.CreateList<string>();
+end;
+
+function TShoppingCartBuilder.GetDependencyTree: string;
+begin
+  Result := self.ClassName;
 end;
 
 end.
