@@ -12,7 +12,7 @@ uses
 type
   TShoppingCartBuilder = class(TInterfacedObject, IShoppingCartBuilder)
   private
-    _items: TList<string>;
+    _items: IList<string>;
   public
     constructor Create();
     function AddItem(
@@ -52,7 +52,7 @@ end;
 
 constructor TShoppingCartBuilder.Create;
 begin
-  _items := TList<string>.Create();
+  _items := TCollections.CreateList<string>();
 end;
 
 end.

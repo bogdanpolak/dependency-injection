@@ -25,6 +25,7 @@ begin
   end;
   if IsDeveloperMode() then
   begin
+    ReportMemoryLeaksOnShutdown := true;
     System.Write('... press Enter to close ...');
     System.Readln;
   end;

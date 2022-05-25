@@ -192,7 +192,7 @@ end;
 
 destructor TConnectionFactory.Destroy;
 begin
-  if fConnection = nil then
+  if fConnection <> nil then
     fConnection.Free;
 end;
 

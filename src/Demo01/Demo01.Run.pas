@@ -53,6 +53,7 @@ begin
   App := GlobalContainer.Resolve<TApplicationRoot>;
   App.GenerateDependencyReport();
   App.ExecuteCheckout();
+  App.Free;
 end;
 
 end.
