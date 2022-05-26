@@ -12,7 +12,9 @@ uses
   DataLayer,
   BuyerProvider,
   InvoiceService,
-  Utils.InterfacedTrackingObject;
+  Model.Cart,
+  Utils.InterfacedTrackingObject,
+  MembershipService;
 
 type
   TCheckoutFeature = class(TInterfacedTrackingObject, ICheckoutFeature)
@@ -20,13 +22,14 @@ type
     fDatabaseContext: IDatabaseContext;
     fBuyerProvider: IBuyerProvider;
     fInvoiceService: IInvoiceService;
+    function GetMembershipLevel(const aBuyer: string): TMembershipLevel;
   public
     [Inject]
     constructor Create(
       aBuyerProvider: IBuyerProvider;
       aInvoiceService: IInvoiceService;
       aDatabaseContext: IDatabaseContext);
-    procedure CheckoutCart(const aCart: string);
+    procedure CheckoutCart(const aCart: TCart);
     function GetDependencyTree(): string;
   end;
 
@@ -43,14 +46,35 @@ begin
   self.fDatabaseContext := aDatabaseContext;
 end;
 
-procedure TCheckoutFeature.CheckoutCart(const aCart: string);
-// var
-// isActive: boolean;
+procedure TCheckoutFeature.CheckoutCart(const aCart: TCart);
+var
+  aBuyer: string;
+  aMembershipLevel: TMembershipLevel;
+  aInvoice: string;
 begin
-  System.Writeln(fBuyerProvider.GetBayer());
+  aBuyer := fBuyerProvider.GetBayer();
+  aMembershipLevel := self.GetMembershipLevel(aBuyer);
+  fDatabaseContext.CheckoutStatus(TCheckoutStatus.InProgress, aCart);
+  fInvoiceService.BundleProducts(aCart);
+  fInvoiceService.ApplyDiscount(aCart, aMembershipLevel);
+  // fCheckoutDisplay.ShowCart(aCart);
+  // fCheckoutDisplay.OnApproveal();
+  aInvoice := fInvoiceService.CreateInvoice(aCart);
+  // if aInvoice = nil then
+  // begin
+  // fDatabaseContext.CheckoutStatus(TCheckoutStatus.Failed, aCart);
+  // fEventBus.Post('ShipInvoice', '#{id}')
+  // end
+  // else
+  // begin
+  // fDatabaseContext.CheckoutStatus(TCheckoutStatus.Succed, aCart);
+  // end;
+end;
 
-  // isActive := fMembershipService.IsCardActive(aCardNumber);
-  // aDiscount := IfThen(isActive, 10, 0);
+function TCheckoutFeature.GetMembershipLevel(const aBuyer: string)
+  : TMembershipLevel;
+begin
+  Result := TMembershipLevel.Basic;
 end;
 
 function TCheckoutFeature.GetDependencyTree: string;

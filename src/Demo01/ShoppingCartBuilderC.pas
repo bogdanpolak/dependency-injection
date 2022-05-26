@@ -7,13 +7,14 @@ uses
   System.Generics.Collections,
   Spring.Collections,
   {}
+  Model.Cart,
   ShoppingCartBuilder,
   Utils.InterfacedTrackingObject;
 
 type
   TShoppingCartBuilder = class(TInterfacedTrackingObject, IShoppingCartBuilder)
   private
-    _items: IList<string>;
+    _items: IList<TCartItem>;
   public
     constructor Create();
     function AddItem(
@@ -21,7 +22,7 @@ type
       const aCatalogId: integer;
       const aName: string;
       const aPrice: currency): IShoppingCartBuilder;
-    function Build(const aItems: integer): string;
+    function Build(const aItems: integer): TCart;
     function GetDependencyTree(): string;
   end;
 
@@ -34,27 +35,44 @@ function TShoppingCartBuilder.AddItem(
   const aCatalogId: integer;
   const aName: string;
   const aPrice: currency): IShoppingCartBuilder;
+var
+  item: TCartItem;
 begin
-  _items.Add(Format('%d;%d;%s;%f', [aQuantity, aCatalogId, aName, aPrice]));
+  item := TCartItem.Create();
+  with item do
+  begin
+    ProductId := aCatalogId;
+    ProductName := aName;
+    ItemPrice := aPrice;
+    CatalogPrice := aPrice;
+    Quantity := aQuantity;
+  end;
+  _items.Add(item);
   Result := self;
 end;
 
-function TShoppingCartBuilder.Build(const aItems: integer): string;
+function TShoppingCartBuilder.Build(const aItems: integer): TCart;
 var
-  list: IList<string>;
+  list: IList<TCartItem>;
+  idx: integer;
+  aCart: TCart;
 begin
-  list := TCollections.CreateList<string>(_items.ToArray());
-  while (list.Count > aItems) and (aItems > 0) do
+  aCart := TCart.Create();
+  if aItems = 0 then
+    exit(aCart);
+  while (aCart.Items.Count > aItems) and (_items.Count > 0) and (aItems > 0) do
   begin
-    list.Delete(random(list.Count));
+    idx := random(_items.Count);
+    aCart.Items.Add(list[idx]);
+    _items.Delete(idx);
   end;
-  Result := String.Join('|', list.ToArray());
+  Result := aCart;
 end;
 
 constructor TShoppingCartBuilder.Create;
 begin
   inherited;
-  _items := TCollections.CreateList<string>();
+  _items := TCollections.CreateObjectList<TCartItem>();
 end;
 
 function TShoppingCartBuilder.GetDependencyTree: string;

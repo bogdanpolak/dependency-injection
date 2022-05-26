@@ -20,7 +20,8 @@ uses
   InvoiceServiceC in 'Demo01\Feature\InvoiceServiceC.pas',
   InvoiceService in 'Demo01\Feature\InvoiceService.pas',
   DataLayerC in 'Demo01\DataLayerC.pas',
-  DataLayer in 'Demo01\DataLayer.pas';
+  DataLayer in 'Demo01\DataLayer.pas',
+  Model.Cart in 'Demo01\Model\Model.Cart.pas';
 
 begin
   randomize;

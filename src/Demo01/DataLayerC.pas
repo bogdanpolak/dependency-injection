@@ -7,6 +7,7 @@ uses
   System.Classes,
   Spring.Container.Common,
   {}
+  Model.Cart,
   DataLayer,
   Utils.InterfacedTrackingObject;
 
@@ -18,6 +19,9 @@ type
   public
     [Inject]
     constructor Create(aDatabaseConnection: IConnectionFactory);
+    procedure CheckoutStatus(
+      aCheckoutStatus: TCheckoutStatus;
+      const aCart: TCart);
     function GetDependencyTree(): string;
   end;
 
@@ -38,6 +42,13 @@ implementation
 
 var
   DatabaseContextCounter: integer = 1;
+
+procedure TDatabaseContext.CheckoutStatus(
+  aCheckoutStatus: TCheckoutStatus;
+  const aCart: TCart);
+begin
+
+end;
 
 constructor TDatabaseContext.Create(aDatabaseConnection: IConnectionFactory);
 begin
@@ -83,4 +94,3 @@ begin
 end;
 
 end.
-

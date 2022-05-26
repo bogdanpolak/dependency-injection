@@ -9,6 +9,7 @@ uses
   Spring.Container.Common,
   Spring.Collections,
   {}
+  Model.Cart,
   ShoppingCartBuilder,
   CheckoutFeature;
 
@@ -37,7 +38,7 @@ const
 
 procedure TApplicationRoot.ExecuteCheckout();
 var
-  aCart: string;
+  aCart: TCart;
 begin
   aCart := fShoppingCartBuilder { }
     .AddItem(3, 94001, 'Laptop ASUS ROG Zephyrus M16', 7199)
@@ -55,12 +56,13 @@ begin
     .AddItem(9, 84001, 'Laptop Dell G15 5511-9151 15,6"', 6899)
     .AddItem(12, 82001, 'Laptop Dell Inspiron 5415-7585 14"', 3799)
     .AddItem(1, 90001, 'Laptop LG Gram 14" 14T90P', 5799).Build(2 + random(3));
-  TCollections.CreateList<string>(aCart.Split(['|'])).ForEach(
-    procedure(const s: string)
+  aCart.Items.ForEach(
+    procedure(const item: TCartItem)
     begin
-      writeln('  - ', s);
+      writeln('  - ', item.ToString());
     end);
   fCheckoutFeature.CheckoutCart(aCart);
+  aCart.Free;
 end;
 
 constructor TApplicationRoot.Create(
