@@ -7,7 +7,7 @@ uses
 
 type
   TDemo01 = class
-    class procedure Run();
+    class procedure Run(const aIsQuiet: boolean);
   private
     class procedure BuildContainer(Container: TContainer);
   end;
@@ -53,13 +53,16 @@ begin
   Container.Build;
 end;
 
-class procedure TDemo01.Run();
+class procedure TDemo01.Run(const aIsQuiet: boolean);
 var
   App: TApplicationRoot;
 begin
   BuildContainer(GlobalContainer);
   App := GlobalContainer.Resolve<TApplicationRoot>;
-  App.GenerateDependencyReport();
+  if not aIsQuiet then
+  begin
+    App.GenerateDependencyReport();
+  end;
   App.ExecuteCheckout();
   App.Free;
 end;

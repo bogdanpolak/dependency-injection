@@ -23,19 +23,24 @@ uses
   DataLayer in 'Demo01\DataLayer.pas',
   Model.Cart in 'Demo01\Model\Model.Cart.pas';
 
+var
+  isMemoryReportMode: boolean;
 begin
   randomize;
+  isMemoryReportMode := (ParamCount > 0) and (ParamStr(1) = '--memory-report');
   try
 
-    TDemo01.Run();
+    TDemo01.Run(isMemoryReportMode);
 
   except
     on E: Exception do
       Writeln(E.ClassName, ': ', E.Message);
   end;
-  if IsDeveloperMode() then
+
+  ReportMemoryLeaksOnShutdown := isMemoryReportMode;
+
+  if not isMemoryReportMode and IsDeveloperMode() then
   begin
-    ReportMemoryLeaksOnShutdown := true;
     System.Write('... press Enter to close ...');
     System.Readln;
   end;
