@@ -21,7 +21,8 @@ uses
   InvoiceService in 'Demo01\Feature\InvoiceService.pas',
   DataLayerC in 'Demo01\DataLayerC.pas',
   DataLayer in 'Demo01\DataLayer.pas',
-  Model.Cart in 'Demo01\Model\Model.Cart.pas';
+  Model.Cart in 'Demo01\Model\Model.Cart.pas',
+  Utils.ColoredConsole in 'Utils.ColoredConsole.pas';
 
 var
   isMemoryReportMode: boolean;
@@ -36,6 +37,9 @@ begin
     on E: Exception do
       Writeln(E.ClassName, ': ', E.Message);
   end;
+
+
+  TConsole.Writeln('');
 
   ReportMemoryLeaksOnShutdown := isMemoryReportMode;
 
