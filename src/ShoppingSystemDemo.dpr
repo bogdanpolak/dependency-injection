@@ -31,7 +31,8 @@ begin
   isMemoryReportMode := (ParamCount > 0) and (ParamStr(1) = '--memory-report');
   try
 
-    TDemo01.Run(isMemoryReportMode);
+    TDemo01.DisplayDependencyTree := not isMemoryReportMode;
+    TDemo01.Run();
 
   except
     on E: Exception do

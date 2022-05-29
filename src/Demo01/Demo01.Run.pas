@@ -3,13 +3,24 @@
 interface
 
 uses
-  Spring.Container;
+  Spring.Container,
+  Spring.Logging.Appenders,
+  Spring.Logging.Controller,
+  Spring.Logging.Loggers,
+  Spring.Logging,
+  {}
+  ApplicationRoot;
 
 type
   TDemo01 = class
-    class procedure Run(const aIsQuiet: boolean);
+  public
+    class procedure Run();
+    class var DisplayDependencyTree: boolean;
   private
-    class procedure BuildContainer(Container: TContainer);
+    class function BuildApplicationRoot(): TApplicationRoot;
+    class procedure RegisterDataServices(aContainer: TContainer);
+    class procedure RegisterDomainServices(aContainer: TContainer); static;
+    class procedure RegisterLogger(aContainer: TContainer); static;
   end;
 
 implementation
@@ -26,45 +37,66 @@ uses
   ShoppingCartBuilder,
   ShoppingCartBuilderC,
   DataLayer,
-  DataLayerC,
-  ApplicationRoot;
+  DataLayerC;
 
 { TDemo01 }
 
-class procedure TDemo01.BuildContainer(Container: TContainer);
+class function TDemo01.BuildApplicationRoot(): TApplicationRoot;
+var
+  Container: TContainer;
 begin
-  // Data Layer:
-  Container.RegisterType<IConnectionFactory, TConnectionFactory>().AsSingleton;
-  Container.RegisterType<IDatabaseContext, TDatabaseContext>();
+  Container := GlobalContainer;
 
-  // Domain Layer
-  Container.RegisterType<IShoppingCartBuilder, TShoppingCartBuilder>();
-  Container.RegisterType<ICheckoutFeature, TCheckoutFeature>();
-  Container.RegisterType<IBuyerProvider, TBuyerProvider>();
-  Container.RegisterType<IMembershipService, TMembershipService>();
-  Container.RegisterType<IInvoiceService, TInvoiceService>();
-
-  // Application Layer:
+  RegisterDataServices(Container);
+  RegisterDomainServices(Container);
+  RegisterLogger(Container);
   Container.RegisterType<TApplicationRoot>();
 
-  // TODO: GlobalContainer.RegisterDecorator()
-  // TODO: GlobalContainer.RegisterFactory()
-
   Container.Build;
+
+  Result := Container.Resolve<TApplicationRoot>;
 end;
 
-class procedure TDemo01.Run(const aIsQuiet: boolean);
+class procedure TDemo01.RegisterDataServices(aContainer: TContainer);
+begin
+  aContainer.RegisterType<IConnectionFactory, TConnectionFactory>().AsSingleton;
+  aContainer.RegisterType<IDatabaseContext, TDatabaseContext>();
+end;
+
+class procedure TDemo01.RegisterDomainServices(aContainer: TContainer);
+begin
+  aContainer.RegisterType<IShoppingCartBuilder, TShoppingCartBuilder>();
+  aContainer.RegisterType<ICheckoutFeature, TCheckoutFeature>();
+  aContainer.RegisterType<IBuyerProvider, TBuyerProvider>();
+  aContainer.RegisterType<IMembershipService, TMembershipService>();
+  aContainer.RegisterType<IInvoiceService, TInvoiceService>();
+  // TODO: GlobalContainer.RegisterDecorator()
+  // TODO: GlobalContainer.RegisterFactory()
+end;
+
+class procedure TDemo01.RegisterLogger(aContainer: TContainer);
+var
+  loggerControler: TLoggerController;
+  textAppender: TTextLogAppender;
+begin
+  textAppender := TTextLogAppender.Create();
+  loggerControler := TLoggerController.Create([textAppender]);
+  aContainer.RegisterInstance<ILoggerController>(loggerControler);
+  aContainer.RegisterType<ILogger, TLogger>;
+end;
+
+// -------------------------------------------
+
+class procedure TDemo01.Run();
 var
   App: TApplicationRoot;
 begin
-  BuildContainer(GlobalContainer);
-  App := GlobalContainer.Resolve<TApplicationRoot>;
-  if not aIsQuiet then
-  begin
-    App.GenerateDependencyReport();
+  App := BuildApplicationRoot();
+  try
+    App.Execute(DisplayDependencyTree);
+  finally
+    App.Free;
   end;
-  App.ExecuteCheckout();
-  App.Free;
 end;
 
 end.
