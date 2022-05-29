@@ -5,7 +5,7 @@ program ShoppingSystemDemo;
 
 uses
   System.SysUtils,
-  PointOfSaleApp in 'PointOfSaleApp.pas',
+  ConsoleApplication in 'ConsoleApplication.pas',
   ApplicationRoot in 'ApplicationRoot.pas',
   CheckoutFeatureC in 'Features\CheckoutFeatureC.pas',
   CheckoutFeature in 'Features\CheckoutFeature.pas',

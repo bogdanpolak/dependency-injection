@@ -1,4 +1,4 @@
-﻿unit PointOfSaleApp;
+﻿unit ConsoleApplication;
 
 interface
 
