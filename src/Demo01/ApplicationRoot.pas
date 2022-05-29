@@ -5,11 +5,10 @@ interface
 uses
   System.Classes,
   System.SysUtils,
-  System.Math,
   Spring.Container.Common,
-  Spring.Collections,
   Spring.Logging,
   {}
+  Utils.DependencyTreeFormatterC,
   Model.Cart,
   ShoppingCartBuilder,
   CheckoutFeature;
@@ -24,7 +23,6 @@ type
     function GetDependencyTree(): string;
     procedure ExecuteCheckout();
     procedure LogCart(aCart: TCart);
-    function FormatDependencyTree(const aTree: string): string;
   public
     [Inject]
     constructor Create(
@@ -79,7 +77,7 @@ var
 begin
   fLogger.Log('Application Started');
   dependencyTree := GetDependencyTree();
-  formatted := FormatDependencyTree(dependencyTree);
+  formatted := TDependencyTreeFormatter.Format(dependencyTree);
   if aShowDependencyTree then
   begin
     fLogger.Log(formatted);
@@ -107,51 +105,17 @@ begin
 end;
 
 procedure TApplicationRoot.LogCart(aCart: TCart);
-begin
-  aCart.Items.ForEach(
-    procedure(const item: TCartItem)
-    begin
-      writeln('  - ', item.ToString());
-    end);
-end;
-
-function TApplicationRoot.FormatDependencyTree(const aTree: string): string;
 var
-  idx, start, level: Integer;
-  ch: Char;
-  line: String;
-  sl: TStringList;
+  idx: Integer;
+  msg: string;
 begin
-  sl := TStringList.Create();
-  try
-  sl.Add('Application Root Dependency Tree:');
-  sl.Add('----------------------------------------------');
-    start := 0;
-    level := 0;
-    for idx := 0 to aTree.Length - 1 do
-    begin
-      ch := aTree.Chars[idx];
-      if (idx = aTree.Length - 1) or (CharInSet(ch, ['{', '}', ','])) then
-      begin
-        if (start < idx) then
-        begin
-          line := StringOfChar(' ', 4 * level) + aTree.Substring(start,
-            idx - start);
-          sl.Add(line);
-        end;
-        start := idx + 1;
-      end;
-      case ch of
-        '{':
-          inc(level);
-        '}':
-          dec(level);
-      end;
-    end;
-    Result := sl.Text + '----------------------------------------------';
-  finally
-    sl.Free;
+  msg := 'Shopping cart items to checkout:';
+  for idx := 0 to aCart.Items.Count - 1 do
+  begin
+    msg := msg + sLineBreak + '  -> ' + aCart.Items[idx].ToString();
   end;
+  fLogger.Log(msg);
 end;
 
 end.
+

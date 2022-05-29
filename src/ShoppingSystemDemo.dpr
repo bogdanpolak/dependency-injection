@@ -22,7 +22,8 @@ uses
   DataLayerC in 'Demo01\DataLayerC.pas',
   DataLayer in 'Demo01\DataLayer.pas',
   Model.Cart in 'Demo01\Model\Model.Cart.pas',
-  Utils.ColoredConsole in 'Utils.ColoredConsole.pas';
+  Utils.ColoredConsole in 'Utils.ColoredConsole.pas',
+  Utils.DependencyTreeFormatterC in 'Utils.DependencyTreeFormatterC.pas';
 
 var
   isMemoryReportMode: boolean;
