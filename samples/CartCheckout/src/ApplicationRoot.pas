@@ -11,7 +11,7 @@ uses
   Utils.DependencyTreeFormatterC,
   Model.Cart,
   ShoppingCartBuilder,
-  CheckoutFeature;
+  Features.CheckoutFeature;
 
 {$SCOPEDENUMS ON}
 

@@ -1,4 +1,4 @@
-﻿unit MembershipServiceC;
+﻿unit Features.MembershipServiceC;
 
 interface
 
@@ -7,9 +7,9 @@ uses
   System.SysUtils,
   Spring.Container.Common,
   {}
-  MembershipService,
+  Utils.InterfacedTrackingObject,
   DataLayer,
-  Utils.InterfacedTrackingObject;
+  Features.MembershipService;
 
 type
   TMembershipService = class(TInterfacedTrackingObject, IMembershipService)

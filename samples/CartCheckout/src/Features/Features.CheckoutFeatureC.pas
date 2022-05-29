@@ -1,4 +1,4 @@
-unit CheckoutFeatureC;
+unit Features.CheckoutFeatureC;
 
 interface
 
@@ -8,13 +8,13 @@ uses
   System.Math,
   Spring.Container.Common,
   {}
-  CheckoutFeature,
-  DataLayer,
-  BuyerProvider,
-  InvoiceService,
-  Model.Cart,
   Utils.InterfacedTrackingObject,
-  MembershipService;
+  Model.Cart,
+  Features.CheckoutFeature,
+  Features.BuyerProvider,
+  Features.InvoiceService,
+  Features.MembershipService,
+  DataLayer;
 
 type
   TCheckoutFeature = class(TInterfacedTrackingObject, ICheckoutFeature)

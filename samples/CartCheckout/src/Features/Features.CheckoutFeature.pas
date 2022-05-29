@@ -1,4 +1,4 @@
-unit CheckoutFeature;
+unit Features.CheckoutFeature;
 
 interface
 
