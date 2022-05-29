@@ -31,7 +31,7 @@ begin
   appOptions := [];
   isMemoryReportMode := (ParamCount > 0) and (ParamStr(1) = '--memory-report');
   if not isMemoryReportMode then
-    appOptions := [ TAppOption.ShowDependencyTree ];
+    appOptions := [TAppOption.ShowDependencyTree];
 
   // ---------------------------------------------
   GlobalContainer.RegisterAppServices();
@@ -44,8 +44,13 @@ begin
   end;
   // ---------------------------------------------
 
-  ReportMemoryLeaksOnShutdown := isMemoryReportMode;
-  if not isMemoryReportMode and IsDeveloperMode() then
+  if isMemoryReportMode then
+  begin
+    ReportMemoryLeaksOnShutdown := true;
+    System.Writeln('----------------------------------------');
+    System.Writeln('Memory leaks report:');
+  end
+  else if IsDeveloperMode() then
   begin
     System.Write('... press Enter to close ...');
     System.Readln;

@@ -26,7 +26,6 @@ type
     fLogger: ILogger;
     function BuildCart(): TCart;
     function GetDependencyTree(): string;
-    procedure ExecuteCheckout();
     procedure LogCart(aCart: TCart);
   public
     [Inject]
@@ -79,6 +78,7 @@ procedure TApplicationRoot.Execute(const aAppOptions: TAppOptions);
 var
   dependencyTree: string;
   formatted: string;
+  Cart: TCart;
 begin
   fLogger.Log('Application Started');
   dependencyTree := GetDependencyTree();
@@ -87,13 +87,7 @@ begin
   begin
     fLogger.Log(formatted);
   end;
-  ExecuteCheckout();
-end;
-
-procedure TApplicationRoot.ExecuteCheckout();
-var
-  Cart: TCart;
-begin
+  // --------------------------------------------
   Cart := BuildCart();
   try
     LogCart(Cart);
