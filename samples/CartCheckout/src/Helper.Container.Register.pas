@@ -45,12 +45,11 @@ begin
   RegisterDataServices(self);
   RegisterDomainServices(self);
   RegisterLogger(self);
-  RegisterApplicationRoot(self);
+  self.RegisterType<TApplicationRoot>;
 end;
 
 class procedure TContainerHelper.RegisterApplicationRoot(aContainer: TContainer);
 begin
-  aContainer.RegisterType<TApplicationRoot>
 end;
 
 class procedure TContainerHelper.RegisterDataServices(aContainer: TContainer);

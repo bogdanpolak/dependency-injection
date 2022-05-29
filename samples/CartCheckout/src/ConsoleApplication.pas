@@ -33,6 +33,7 @@ begin
   if not isMemoryReportMode then
     appOptions := [ TAppOption.ShowDependencyTree ];
 
+  // ---------------------------------------------
   GlobalContainer.RegisterAppServices();
   GlobalContainer.Build;
   app := GlobalContainer.Resolve<TApplicationRoot>;
@@ -41,6 +42,7 @@ begin
   finally
     app.Free;
   end;
+  // ---------------------------------------------
 
   ReportMemoryLeaksOnShutdown := isMemoryReportMode;
   if not isMemoryReportMode and IsDeveloperMode() then

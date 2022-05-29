@@ -1,4 +1,4 @@
-program ShoppingSystemDemo;
+program CartCheckoutDemo;
 
 {$APPTYPE CONSOLE}
 {$R *.res}
