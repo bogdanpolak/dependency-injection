@@ -1,4 +1,4 @@
-﻿unit InvoiceServiceC;
+﻿unit Features.InvoiceServiceC;
 
 interface
 
@@ -6,11 +6,11 @@ uses
   System.SysUtils,
   Spring.Container.Common,
   {}
-  InvoiceService,
-  MembershipService,
+  Utils.InterfacedTrackingObject,
   Model.Cart,
   DataLayer,
-  Utils.InterfacedTrackingObject;
+  Features.InvoiceService,
+  Features.MembershipService;
 
 type
   TInvoiceService = class(TInterfacedTrackingObject, IInvoiceService)

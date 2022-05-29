@@ -1,9 +1,9 @@
-﻿unit InvoiceService;
+﻿unit Features.InvoiceService;
 
 interface
 
 uses
-  MembershipService,
+  Features.MembershipService,
   Model.Cart;
 
 type

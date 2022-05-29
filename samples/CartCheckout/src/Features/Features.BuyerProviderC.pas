@@ -1,4 +1,4 @@
-﻿unit BuyerProviderC;
+﻿unit Features.BuyerProviderC;
 
 interface
 
@@ -6,8 +6,8 @@ uses
   System.SysUtils,
   Spring.Container.Common,
   {}
-  BuyerProvider,
-  MembershipService,
+  Features.BuyerProvider,
+  Features.MembershipService,
   Utils.InterfacedTrackingObject;
 
 type
