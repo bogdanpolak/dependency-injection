@@ -9,7 +9,12 @@ uses
   Spring.Container.Common,
   {}
   CheckoutFeature,
-  Utils.InterfacedTrackingObject;
+  DataLayer,
+  BuyerProvider,
+  InvoiceService,
+  Model.Cart,
+  Utils.InterfacedTrackingObject,
+  MembershipService;
 
 type
   TCheckoutFeature = class(TInterfacedTrackingObject, ICheckoutFeature)
@@ -17,68 +22,18 @@ type
     fDatabaseContext: IDatabaseContext;
     fBuyerProvider: IBuyerProvider;
     fInvoiceService: IInvoiceService;
+    function GetMembershipLevel(const aBuyer: string): TMembershipLevel;
   public
     [Inject]
     constructor Create(
       aBuyerProvider: IBuyerProvider;
       aInvoiceService: IInvoiceService;
       aDatabaseContext: IDatabaseContext);
-    procedure CheckoutCart(const aCart: string);
-    function GetDependencyTree(): string;
-  end;
-
-  TBuyerProvider = class(TInterfacedTrackingObject, IBuyerProvider)
-  private
-    fMembershipService: IMembershipService;
-  public
-    [Inject]
-    constructor Create(aMembershipService: IMembershipService);
-    function GetBayer(): string;
-    function GetDependencyTree(): string;
-  end;
-
-  TMembershipService = class(TInterfacedTrackingObject, IMembershipService)
-  private
-    fDatabaseContext: IDatabaseContext;
-  public
-    [Inject]
-    constructor Create(aDatabaseContext: IDatabaseContext);
-    function GetDependencyTree(): string;
-    function IsCardActive(const aCardNumber: string): boolean;
-  end;
-
-  TInvoiceService = class(TInterfacedTrackingObject, IInvoiceService)
-  private
-    fDatabaseContext: IDatabaseContext;
-  public
-    [Inject]
-    constructor Create(aDatabaseContext: IDatabaseContext);
-    function GetDependencyTree(): string;
-  end;
-
-  TDatabaseContext = class(TInterfacedTrackingObject, IDatabaseContext)
-  private
-    fIdent: integer;
-    fDatabaseConnection: IConnectionFactory;
-  public
-    [Inject]
-    constructor Create(aDatabaseConnection: IConnectionFactory);
-    function GetDependencyTree(): string;
-  end;
-
-  TConnectionFactory = class(TInterfacedTrackingObject, IConnectionFactory)
-  private
-    fConnection: TComponent;
-  public
-    constructor Create;
-    destructor Destroy; override;
-    function GetConnection(): TComponent;
+    procedure CheckoutCart(const aCart: TCart);
     function GetDependencyTree(): string;
   end;
 
 implementation
-
-{ TCheckoutFeature }
 
 constructor TCheckoutFeature.Create(
   aBuyerProvider: IBuyerProvider;
@@ -91,132 +46,43 @@ begin
   self.fDatabaseContext := aDatabaseContext;
 end;
 
-procedure TCheckoutFeature.CheckoutCart(const aCart: string);
-// var
-// isActive: boolean;
+procedure TCheckoutFeature.CheckoutCart(const aCart: TCart);
+var
+  aBuyer: string;
+  aMembershipLevel: TMembershipLevel;
+  aInvoice: string;
 begin
-  System.Writeln(fBuyerProvider.GetBayer());
+  aBuyer := fBuyerProvider.GetBayer();
+  aMembershipLevel := self.GetMembershipLevel(aBuyer);
+  fDatabaseContext.CheckoutStatus(TCheckoutStatus.InProgress, aCart);
+  fInvoiceService.BundleProducts(aCart);
+  fInvoiceService.ApplyDiscount(aCart, aMembershipLevel);
+  // fCheckoutDisplay.ShowCart(aCart);
+  // fCheckoutDisplay.OnApproveal();
+  aInvoice := fInvoiceService.CreateInvoice(aCart);
+  // if aInvoice = nil then
+  // begin
+  // fDatabaseContext.CheckoutStatus(TCheckoutStatus.Failed, aCart);
+  // fEventBus.Post('ShipInvoice', '#{id}')
+  // end
+  // else
+  // begin
+  // fDatabaseContext.CheckoutStatus(TCheckoutStatus.Succed, aCart);
+  // end;
+end;
 
-  // isActive := fMembershipService.IsCardActive(aCardNumber);
-  // aDiscount := IfThen(isActive, 10, 0);
+function TCheckoutFeature.GetMembershipLevel(const aBuyer: string)
+  : TMembershipLevel;
+begin
+  Result := TMembershipLevel.Basic;
 end;
 
 function TCheckoutFeature.GetDependencyTree: string;
 begin
   Result := self.ClassNameWithInstanceId() + '{' +
     fBuyerProvider.GetDependencyTree() + ',' +
-    fDatabaseContext.GetDependencyTree + ',' +
-    fInvoiceService.GetDependencyTree + '}';
-end;
-
-{ TBuyerProvider }
-
-constructor TBuyerProvider.Create(aMembershipService: IMembershipService);
-begin
-  inherited Create();
-  fMembershipService := aMembershipService;
-end;
-
-function TBuyerProvider.GetBayer: string;
-const
-  NumberOfCustomers = 5;
-  customers: array [0 .. NumberOfCustomers - 1] of string = ('Amazon', 'Google',
-    'Apple', 'Microsoft', 'Embarcadero');
-begin
-  Result := customers[random(NumberOfCustomers)];
-end;
-
-function TBuyerProvider.GetDependencyTree: string;
-begin
-  Result := self.ClassNameWithInstanceId() + '{' +
-    fMembershipService.GetDependencyTree() + '}';
-end;
-
-{ TMembershipService }
-
-constructor TMembershipService.Create(aDatabaseContext: IDatabaseContext);
-begin
-  inherited Create();
-  fDatabaseContext := aDatabaseContext;
-end;
-
-function TMembershipService.GetDependencyTree: string;
-begin
-  Result := self.ClassNameWithInstanceId() + '{' +
-    fDatabaseContext.GetDependencyTree() + '}';
-end;
-
-function TMembershipService.IsCardActive(const aCardNumber: string): boolean;
-var
-  aNumber: integer;
-begin
-  Result := aCardNumber.StartsWith('A') and TryStrToInt(aCardNumber, aNumber)
-    and (aNumber > 100);
-end;
-
-{ TInvoiceService }
-
-constructor TInvoiceService.Create(aDatabaseContext: IDatabaseContext);
-begin
-  inherited Create();
-  self.fDatabaseContext := aDatabaseContext;
-end;
-
-function TInvoiceService.GetDependencyTree: string;
-begin
-  Result := self.ClassNameWithInstanceId() + '{' +
-    fDatabaseContext.GetDependencyTree() + '}';
-end;
-
-{ TDatabaseContext }
-
-var
-  DatabaseContextCounter: integer = 1;
-
-constructor TDatabaseContext.Create(aDatabaseConnection: IConnectionFactory);
-begin
-  inherited Create();
-  self.fDatabaseConnection := aDatabaseConnection;
-  self.fIdent := DatabaseContextCounter;
-  DatabaseContextCounter := DatabaseContextCounter + 1;
-end;
-
-function TDatabaseContext.GetDependencyTree: string;
-var
-  connection: TComponent;
-begin
-  connection := fDatabaseConnection.GetConnection();
-  Result := self.ClassNameWithInstanceId() + '{' +
-    fDatabaseConnection.GetDependencyTree() + '}';
-end;
-
-{ TConnectionFactory }
-
-constructor TConnectionFactory.Create;
-begin
-  inherited Create();
-  fConnection := nil;
-end;
-
-destructor TConnectionFactory.Destroy;
-begin
-  if fConnection <> nil then
-    fConnection.Free;
-end;
-
-function TConnectionFactory.GetConnection: TComponent;
-begin
-  if fConnection = nil then
-  begin
-    fConnection := TComponent.Create(nil);
-    fConnection.Name := Format('Connection%d', [InstanceId mod 100]);
-  end;
-  Result := fConnection;
-end;
-
-function TConnectionFactory.GetDependencyTree: string;
-begin
-  Result := self.ClassNameWithInstanceId();
+    fDatabaseContext.GetDependencyTree() + ',' +
+    fInvoiceService.GetDependencyTree() + '}';
 end;
 
 end.

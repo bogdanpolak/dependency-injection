@@ -5,10 +5,11 @@ interface
 uses
   System.Classes,
   System.SysUtils,
-  System.Math,
   Spring.Container.Common,
-  Spring.Collections,
+  Spring.Logging,
   {}
+  Utils.DependencyTreeFormatterC,
+  Model.Cart,
   ShoppingCartBuilder,
   CheckoutFeature;
 
@@ -17,29 +18,29 @@ type
   private
     fCheckoutFeature: ICheckoutFeature;
     fShoppingCartBuilder: IShoppingCartBuilder;
-    procedure DisplayDependencyTree();
+    fLogger: ILogger;
+    function BuildCart(): TCart;
+    function GetDependencyTree(): string;
+    procedure ExecuteCheckout();
+    procedure LogCart(aCart: TCart);
   public
     [Inject]
     constructor Create(
       aCheckoutFeature: ICheckoutFeature;
-      aShoppingCartBuilder: IShoppingCartBuilder);
-    procedure GenerateDependencyReport();
-    procedure ExecuteCheckout();
+      aShoppingCartBuilder: IShoppingCartBuilder;
+      aLogger: ILogger);
+    procedure Execute(const aShowDependencyTree: boolean = false);
   end;
 
 implementation
 
 { TApplicationRoot }
 
-const
-  PrivateBuyer: NativeInt = 1000000;
-  BussinesBuyer: NativeInt = 2000000;
-
-procedure TApplicationRoot.ExecuteCheckout();
+function TApplicationRoot.BuildCart(): TCart;
 var
-  aCart: string;
+  itemsInCart: Integer;
 begin
-  aCart := fShoppingCartBuilder { }
+  fShoppingCartBuilder { }
     .AddItem(3, 94001, 'Laptop ASUS ROG Zephyrus M16', 7199)
     .AddItem(2, 88001, 'Laptop ASUS Vivobook Pro 14X', 5999)
     .AddItem(6, 91001, 'Laptop ASUS ZenBook 14 UM', 3599)
@@ -54,61 +55,67 @@ begin
     .AddItem(6, 93001, 'Laptop MSI Katana GF66 11UE-805PL', 6199)
     .AddItem(9, 84001, 'Laptop Dell G15 5511-9151 15,6"', 6899)
     .AddItem(12, 82001, 'Laptop Dell Inspiron 5415-7585 14"', 3799)
-    .AddItem(1, 90001, 'Laptop LG Gram 14" 14T90P', 5799).Build(2 + random(3));
-  TCollections.CreateList<string>(aCart.Split(['|'])).ForEach(
-    procedure(const s: string)
-    begin
-      writeln('  - ', s);
-    end);
-  fCheckoutFeature.CheckoutCart(aCart);
+    .AddItem(1, 90001, 'Laptop LG Gram 14" 14T90P', 5799);
+  itemsInCart := 2 + random(3);
+  Result := fShoppingCartBuilder.Build(itemsInCart);
 end;
 
 constructor TApplicationRoot.Create(
   aCheckoutFeature: ICheckoutFeature;
-  aShoppingCartBuilder: IShoppingCartBuilder);
+  aShoppingCartBuilder: IShoppingCartBuilder;
+  aLogger: ILogger);
 begin
   self.fShoppingCartBuilder := aShoppingCartBuilder;
   self.fCheckoutFeature := aCheckoutFeature;
+  self.fLogger := aLogger;
 end;
 
-procedure TApplicationRoot.GenerateDependencyReport;
-begin
-  System.Writeln('Application Root Dependency Tree:');
-  System.Writeln('----------------------------------------------');
-  DisplayDependencyTree();
-  System.Writeln('----------------------------------------------');
-end;
-
-procedure TApplicationRoot.DisplayDependencyTree();
+procedure TApplicationRoot.Execute(const aShowDependencyTree: boolean = false);
 var
-  idx, start, level: Integer;
-  aTree: string;
-  ch: Char;
+  dependencyTree: string;
+  formatted: string;
 begin
-  idx := 0;
-  start := 0;
-  level := 0;
-  aTree := fShoppingCartBuilder.GetDependencyTree() + ',' +
-    fCheckoutFeature.GetDependencyTree();
-  for idx := 0 to aTree.Length - 1 do
+  fLogger.Log('Application Started');
+  dependencyTree := GetDependencyTree();
+  formatted := TDependencyTreeFormatter.Format(dependencyTree);
+  if aShowDependencyTree then
   begin
-    ch := aTree.Chars[idx];
-    if CharInSet(ch, ['{', '}', ',']) then
-    begin
-      if (start < idx) then
-      begin
-        System.Writeln(StringOfChar(' ', 4 * level) + aTree.Substring(start,
-          idx - start));
-      end;
-      start := idx + 1;
-    end;
-    case ch of
-      '{':
-        inc(level);
-      '}':
-        dec(level);
-    end;
+    fLogger.Log(formatted);
+  end;
+  ExecuteCheckout();
+end;
+
+procedure TApplicationRoot.ExecuteCheckout();
+var
+  Cart: TCart;
+begin
+  Cart := BuildCart();
+  try
+    LogCart(Cart);
+    fCheckoutFeature.CheckoutCart(Cart);
+  finally
+    Cart.Free;
   end;
 end;
 
+function TApplicationRoot.GetDependencyTree: string;
+begin
+  Result := self.ClassName + '{' + fShoppingCartBuilder.GetDependencyTree() +
+    ',' + fCheckoutFeature.GetDependencyTree() + ',ILogger' + '}';
+end;
+
+procedure TApplicationRoot.LogCart(aCart: TCart);
+var
+  idx: Integer;
+  msg: string;
+begin
+  msg := 'Shopping cart items to checkout:';
+  for idx := 0 to aCart.Items.Count - 1 do
+  begin
+    msg := msg + sLineBreak + '  -> ' + aCart.Items[idx].ToString();
+  end;
+  fLogger.Log(msg);
+end;
+
 end.
+
