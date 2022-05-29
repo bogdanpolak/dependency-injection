@@ -23,32 +23,14 @@ uses
   Utils.DeveloperMode in 'Utils\Utils.DeveloperMode.pas',
   Utils.InterfacedTrackingObject in 'Utils\Utils.InterfacedTrackingObject.pas',
   Utils.ColoredConsole in 'Utils\Utils.ColoredConsole.pas',
-  Utils.DependencyTreeFormatterC in 'Utils\Utils.DependencyTreeFormatterC.pas';
+  Utils.DependencyTreeFormatterC in 'Utils\Utils.DependencyTreeFormatterC.pas',
+  Helper.Container.Register in 'Helper.Container.Register.pas';
 
-var
-  isMemoryReportMode: boolean;
 begin
-  randomize;
-  isMemoryReportMode := (ParamCount > 0) and (ParamStr(1) = '--memory-report');
   try
-
-    TPointOfSaleApp.DisplayDependencyTree := not isMemoryReportMode;
-    TPointOfSaleApp.Run();
-
+    TConsoleApplication.Run();
   except
     on E: Exception do
       Writeln(E.ClassName, ': ', E.Message);
   end;
-
-
-  TConsole.Writeln('');
-
-  ReportMemoryLeaksOnShutdown := isMemoryReportMode;
-
-  if not isMemoryReportMode and IsDeveloperMode() then
-  begin
-    System.Write('... press Enter to close ...');
-    System.Readln;
-  end;
-
 end.

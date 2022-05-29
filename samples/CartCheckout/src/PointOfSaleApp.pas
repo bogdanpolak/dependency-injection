@@ -4,99 +4,51 @@ interface
 
 uses
   Spring.Container,
-  Spring.Logging.Appenders,
-  Spring.Logging.Controller,
-  Spring.Logging.Loggers,
-  Spring.Logging,
   {}
-  ApplicationRoot;
+  ApplicationRoot,
+  Utils.ColoredConsole,
+  Utils.DeveloperMode;
 
 type
-  TPointOfSaleApp = class
+  TConsoleApplication = class
   public
     class procedure Run();
-    class var DisplayDependencyTree: boolean;
-  private
-    class function BuildApplicationRoot(): TApplicationRoot;
-    class procedure RegisterDataServices(aContainer: TContainer);
-    class procedure RegisterDomainServices(aContainer: TContainer); static;
-    class procedure RegisterLogger(aContainer: TContainer); static;
   end;
 
 implementation
 
 uses
-  CheckoutFeature,
-  CheckoutFeatureC,
-  BuyerProvider,
-  BuyerProviderC,
-  MembershipService,
-  MembershipServiceC,
-  InvoiceService,
-  InvoiceServiceC,
-  ShoppingCartBuilder,
-  ShoppingCartBuilderC,
-  DataLayer,
-  DataLayerC;
+  Helper.Container.Register;
 
-{ TDemo01 }
-
-class function TPointOfSaleApp.BuildApplicationRoot(): TApplicationRoot;
+class procedure TConsoleApplication.Run();
 var
-  Container: TContainer;
+  appOptions: TAppOptions;
+  app: TApplicationRoot;
+  isMemoryReportMode: Boolean;
 begin
-  Container := GlobalContainer;
+  TConsole.Writeln('');
+  randomize;
+  appOptions := [];
+  isMemoryReportMode := (ParamCount > 0) and (ParamStr(1) = '--memory-report');
+  if not isMemoryReportMode then
+    appOptions := [ TAppOption.ShowDependencyTree ];
 
-  RegisterDataServices(Container);
-  RegisterDomainServices(Container);
-  RegisterLogger(Container);
-  Container.RegisterType<TApplicationRoot>();
-
-  Container.Build;
-
-  Result := Container.Resolve<TApplicationRoot>;
-end;
-
-class procedure TPointOfSaleApp.RegisterDataServices(aContainer: TContainer);
-begin
-  aContainer.RegisterType<IConnectionFactory, TConnectionFactory>().AsSingleton;
-  aContainer.RegisterType<IDatabaseContext, TDatabaseContext>();
-end;
-
-class procedure TPointOfSaleApp.RegisterDomainServices(aContainer: TContainer);
-begin
-  aContainer.RegisterType<IShoppingCartBuilder, TShoppingCartBuilder>();
-  aContainer.RegisterType<ICheckoutFeature, TCheckoutFeature>();
-  aContainer.RegisterType<IBuyerProvider, TBuyerProvider>();
-  aContainer.RegisterType<IMembershipService, TMembershipService>();
-  aContainer.RegisterType<IInvoiceService, TInvoiceService>();
-  // TODO: GlobalContainer.RegisterDecorator()
-  // TODO: GlobalContainer.RegisterFactory()
-end;
-
-class procedure TPointOfSaleApp.RegisterLogger(aContainer: TContainer);
-var
-  loggerControler: TLoggerController;
-  textAppender: TTextLogAppender;
-begin
-  textAppender := TTextLogAppender.Create();
-  loggerControler := TLoggerController.Create([textAppender]);
-  aContainer.RegisterInstance<ILoggerController>(loggerControler);
-  aContainer.RegisterType<ILogger, TLogger>;
-end;
-
-// -------------------------------------------
-
-class procedure TPointOfSaleApp.Run();
-var
-  App: TApplicationRoot;
-begin
-  App := BuildApplicationRoot();
+  GlobalContainer.RegisterAppServices();
+  GlobalContainer.Build;
+  app := GlobalContainer.Resolve<TApplicationRoot>;
   try
-    App.Execute(DisplayDependencyTree);
+    app.Execute(appOptions);
   finally
-    App.Free;
+    app.Free;
+  end;
+
+  ReportMemoryLeaksOnShutdown := isMemoryReportMode;
+  if not isMemoryReportMode and IsDeveloperMode() then
+  begin
+    System.Write('... press Enter to close ...');
+    System.Readln;
   end;
 end;
 
 end.
+

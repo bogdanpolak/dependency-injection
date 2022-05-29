@@ -13,7 +13,12 @@ uses
   ShoppingCartBuilder,
   CheckoutFeature;
 
+{$SCOPEDENUMS ON}
+
 type
+  TAppOption = (ShowDependencyTree);
+  TAppOptions = set of TAppOption;
+
   TApplicationRoot = class
   private
     fCheckoutFeature: ICheckoutFeature;
@@ -29,7 +34,7 @@ type
       aCheckoutFeature: ICheckoutFeature;
       aShoppingCartBuilder: IShoppingCartBuilder;
       aLogger: ILogger);
-    procedure Execute(const aShowDependencyTree: boolean = false);
+    procedure Execute(const aAppOptions: TAppOptions);
   end;
 
 implementation
@@ -70,7 +75,7 @@ begin
   self.fLogger := aLogger;
 end;
 
-procedure TApplicationRoot.Execute(const aShowDependencyTree: boolean = false);
+procedure TApplicationRoot.Execute(const aAppOptions: TAppOptions);
 var
   dependencyTree: string;
   formatted: string;
@@ -78,7 +83,7 @@ begin
   fLogger.Log('Application Started');
   dependencyTree := GetDependencyTree();
   formatted := TDependencyTreeFormatter.Format(dependencyTree);
-  if aShowDependencyTree then
+  if TAppOption.ShowDependencyTree in aAppOptions then
   begin
     fLogger.Log(formatted);
   end;
@@ -118,4 +123,3 @@ begin
 end;
 
 end.
-
