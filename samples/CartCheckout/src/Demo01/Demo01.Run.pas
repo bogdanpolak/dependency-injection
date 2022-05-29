@@ -12,7 +12,7 @@ uses
   ApplicationRoot;
 
 type
-  TDemo01 = class
+  TPointOfSaleApp = class
   public
     class procedure Run();
     class var DisplayDependencyTree: boolean;
@@ -41,7 +41,7 @@ uses
 
 { TDemo01 }
 
-class function TDemo01.BuildApplicationRoot(): TApplicationRoot;
+class function TPointOfSaleApp.BuildApplicationRoot(): TApplicationRoot;
 var
   Container: TContainer;
 begin
@@ -57,13 +57,13 @@ begin
   Result := Container.Resolve<TApplicationRoot>;
 end;
 
-class procedure TDemo01.RegisterDataServices(aContainer: TContainer);
+class procedure TPointOfSaleApp.RegisterDataServices(aContainer: TContainer);
 begin
   aContainer.RegisterType<IConnectionFactory, TConnectionFactory>().AsSingleton;
   aContainer.RegisterType<IDatabaseContext, TDatabaseContext>();
 end;
 
-class procedure TDemo01.RegisterDomainServices(aContainer: TContainer);
+class procedure TPointOfSaleApp.RegisterDomainServices(aContainer: TContainer);
 begin
   aContainer.RegisterType<IShoppingCartBuilder, TShoppingCartBuilder>();
   aContainer.RegisterType<ICheckoutFeature, TCheckoutFeature>();
@@ -74,7 +74,7 @@ begin
   // TODO: GlobalContainer.RegisterFactory()
 end;
 
-class procedure TDemo01.RegisterLogger(aContainer: TContainer);
+class procedure TPointOfSaleApp.RegisterLogger(aContainer: TContainer);
 var
   loggerControler: TLoggerController;
   textAppender: TTextLogAppender;
@@ -87,7 +87,7 @@ end;
 
 // -------------------------------------------
 
-class procedure TDemo01.Run();
+class procedure TPointOfSaleApp.Run();
 var
   App: TApplicationRoot;
 begin

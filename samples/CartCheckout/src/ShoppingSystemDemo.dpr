@@ -5,23 +5,23 @@ program ShoppingSystemDemo;
 
 uses
   System.SysUtils,
-  Utils.DeveloperMode in 'Utils.DeveloperMode.pas',
-  ApplicationRoot in 'Demo01\ApplicationRoot.pas',
-  CheckoutFeatureC in 'Demo01\Feature\CheckoutFeatureC.pas',
-  CheckoutFeature in 'Demo01\Feature\CheckoutFeature.pas',
   Demo01.Run in 'Demo01\Demo01.Run.pas',
-  ShoppingCartBuilderC in 'Demo01\ShoppingCartBuilderC.pas',
-  ShoppingCartBuilder in 'Demo01\ShoppingCartBuilder.pas',
+  ApplicationRoot in 'Demo01\ApplicationRoot.pas',
+  CheckoutFeatureC in 'Feature\CheckoutFeatureC.pas',
+  CheckoutFeature in 'Feature\CheckoutFeature.pas',
+  ShoppingCartBuilderC in 'Data\ShoppingCartBuilderC.pas',
+  ShoppingCartBuilder in 'Data\ShoppingCartBuilder.pas',
+  BuyerProviderC in 'Feature\BuyerProviderC.pas',
+  BuyerProvider in 'Feature\BuyerProvider.pas',
+  MembershipServiceC in 'Feature\MembershipServiceC.pas',
+  MembershipService in 'Feature\MembershipService.pas',
+  InvoiceServiceC in 'Feature\InvoiceServiceC.pas',
+  InvoiceService in 'Feature\InvoiceService.pas',
+  DataLayerC in 'Data\DataLayerC.pas',
+  DataLayer in 'Data\DataLayer.pas',
+  Model.Cart in 'Model\Model.Cart.pas',
+  Utils.DeveloperMode in 'Utils.DeveloperMode.pas',
   Utils.InterfacedTrackingObject in 'Utils.InterfacedTrackingObject.pas',
-  BuyerProviderC in 'Demo01\Feature\BuyerProviderC.pas',
-  BuyerProvider in 'Demo01\Feature\BuyerProvider.pas',
-  MembershipServiceC in 'Demo01\Feature\MembershipServiceC.pas',
-  MembershipService in 'Demo01\Feature\MembershipService.pas',
-  InvoiceServiceC in 'Demo01\Feature\InvoiceServiceC.pas',
-  InvoiceService in 'Demo01\Feature\InvoiceService.pas',
-  DataLayerC in 'Demo01\DataLayerC.pas',
-  DataLayer in 'Demo01\DataLayer.pas',
-  Model.Cart in 'Demo01\Model\Model.Cart.pas',
   Utils.ColoredConsole in 'Utils.ColoredConsole.pas',
   Utils.DependencyTreeFormatterC in 'Utils.DependencyTreeFormatterC.pas';
 
@@ -32,8 +32,8 @@ begin
   isMemoryReportMode := (ParamCount > 0) and (ParamStr(1) = '--memory-report');
   try
 
-    TDemo01.DisplayDependencyTree := not isMemoryReportMode;
-    TDemo01.Run();
+    TPointOfSaleApp.DisplayDependencyTree := not isMemoryReportMode;
+    TPointOfSaleApp.Run();
 
   except
     on E: Exception do
