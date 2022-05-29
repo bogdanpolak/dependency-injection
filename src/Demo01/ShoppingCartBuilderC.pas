@@ -53,18 +53,16 @@ end;
 
 function TShoppingCartBuilder.Build(const aItems: integer): TCart;
 var
-  list: IList<TCartItem>;
   idx: integer;
   aCart: TCart;
 begin
   aCart := TCart.Create();
   if aItems = 0 then
     exit(aCart);
-  while (aCart.Items.Count > aItems) and (_items.Count > 0) and (aItems > 0) do
+  while (aCart.Items.Count < aItems) and (_items.Count > 0) and (aItems > 0) do
   begin
     idx := random(_items.Count);
-    aCart.Items.Add(list[idx]);
-    _items.Delete(idx);
+    aCart.Items.Add(_items.ExtractAt(idx));
   end;
   Result := aCart;
 end;
