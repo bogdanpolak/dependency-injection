@@ -5,25 +5,25 @@ program ShoppingSystemDemo;
 
 uses
   System.SysUtils,
-  Demo01.Run in 'Demo01\Demo01.Run.pas',
-  ApplicationRoot in 'Demo01\ApplicationRoot.pas',
-  CheckoutFeatureC in 'Feature\CheckoutFeatureC.pas',
-  CheckoutFeature in 'Feature\CheckoutFeature.pas',
-  ShoppingCartBuilderC in 'Data\ShoppingCartBuilderC.pas',
-  ShoppingCartBuilder in 'Data\ShoppingCartBuilder.pas',
-  BuyerProviderC in 'Feature\BuyerProviderC.pas',
-  BuyerProvider in 'Feature\BuyerProvider.pas',
-  MembershipServiceC in 'Feature\MembershipServiceC.pas',
-  MembershipService in 'Feature\MembershipService.pas',
-  InvoiceServiceC in 'Feature\InvoiceServiceC.pas',
-  InvoiceService in 'Feature\InvoiceService.pas',
+  PointOfSaleApp in 'PointOfSaleApp.pas',
+  ApplicationRoot in 'ApplicationRoot.pas',
+  CheckoutFeatureC in 'Features\CheckoutFeatureC.pas',
+  CheckoutFeature in 'Features\CheckoutFeature.pas',
+  BuyerProviderC in 'Features\BuyerProviderC.pas',
+  BuyerProvider in 'Features\BuyerProvider.pas',
+  MembershipServiceC in 'Features\MembershipServiceC.pas',
+  MembershipService in 'Features\MembershipService.pas',
+  InvoiceServiceC in 'Features\InvoiceServiceC.pas',
+  InvoiceService in 'Features\InvoiceService.pas',
+  Model.Cart in 'Model\Model.Cart.pas',
   DataLayerC in 'Data\DataLayerC.pas',
   DataLayer in 'Data\DataLayer.pas',
-  Model.Cart in 'Model\Model.Cart.pas',
-  Utils.DeveloperMode in 'Utils.DeveloperMode.pas',
-  Utils.InterfacedTrackingObject in 'Utils.InterfacedTrackingObject.pas',
-  Utils.ColoredConsole in 'Utils.ColoredConsole.pas',
-  Utils.DependencyTreeFormatterC in 'Utils.DependencyTreeFormatterC.pas';
+  ShoppingCartBuilderC in 'Data\ShoppingCartBuilderC.pas',
+  ShoppingCartBuilder in 'Data\ShoppingCartBuilder.pas',
+  Utils.DeveloperMode in 'Utils\Utils.DeveloperMode.pas',
+  Utils.InterfacedTrackingObject in 'Utils\Utils.InterfacedTrackingObject.pas',
+  Utils.ColoredConsole in 'Utils\Utils.ColoredConsole.pas',
+  Utils.DependencyTreeFormatterC in 'Utils\Utils.DependencyTreeFormatterC.pas';
 
 var
   isMemoryReportMode: boolean;

@@ -1,4 +1,4 @@
-﻿unit Demo01.Run;
+﻿unit PointOfSaleApp;
 
 interface
 
