@@ -9,6 +9,9 @@
         <Projects Include="exercises\ex02_WeatherReader.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="exercises\ex03_DbContextFactory.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -36,13 +39,13 @@
         <MSBuild Projects="exercises\ex02_WeatherReader.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="ex01_ConsoleService;ex02_WeatherReader"/>
+        <CallTarget Targets="ex01_ConsoleService;ex02_WeatherReader;ex03_DbContextFactory"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="ex01_ConsoleService:Clean;ex02_WeatherReader:Clean"/>
+        <CallTarget Targets="ex01_ConsoleService:Clean;ex02_WeatherReader:Clean;ex03_DbContextFactory:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="ex01_ConsoleService:Make;ex02_WeatherReader:Make"/>
+        <CallTarget Targets="ex01_ConsoleService:Make;ex02_WeatherReader:Make;ex03_DbContextFactory:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
