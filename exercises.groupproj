@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{0D8EFDCA-EB1B-4DA0-9BD5-FBB29DD9F464}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="exercises\ex01_ConsoleService.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="exercises\ex02_WeatherReader.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="ex01_ConsoleService">
+        <MSBuild Projects="exercises\ex01_ConsoleService.dproj"/>
+    </Target>
+    <Target Name="ex01_ConsoleService:Clean">
+        <MSBuild Projects="exercises\ex01_ConsoleService.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ex01_ConsoleService:Make">
+        <MSBuild Projects="exercises\ex01_ConsoleService.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ex02_WeatherReader">
+        <MSBuild Projects="exercises\ex02_WeatherReader.dproj"/>
+    </Target>
+    <Target Name="ex02_WeatherReader:Clean">
+        <MSBuild Projects="exercises\ex02_WeatherReader.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ex02_WeatherReader:Make">
+        <MSBuild Projects="exercises\ex02_WeatherReader.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="ex01_ConsoleService;ex02_WeatherReader"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="ex01_ConsoleService:Clean;ex02_WeatherReader:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="ex01_ConsoleService:Make;ex02_WeatherReader:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
