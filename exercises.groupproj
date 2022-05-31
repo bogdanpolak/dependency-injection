@@ -41,6 +41,23 @@
     <Target Name="ex02_WeatherReader:Make">
         <MSBuild Projects="exercises\ex02_WeatherReader.dproj" Targets="Make"/>
     </Target>
+    <Target Name="ex03_DbContextFactory">
+        <MSBuild Projects="exercises\ex03_DbContextFactory.dproj"/>
+    </Target>
+    <Target Name="ex03_DbContextFactory:Clean">
+        <MSBuild Projects="exercises\ex03_DbContextFactory.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ex03_DbContextFactory:Make">
+        <MSBuild Projects="exercises\ex03_DbContextFactory.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ex04_Factories">
+        <MSBuild Projects="exercises\ex04_Factories.dproj"/>
+    </Target>
+    <Target Name="ex04_Factories:Clean">
+        <MSBuild Projects="exercises\ex04_Factories.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ex04_Factories:Make">
+        <MSBuild Projects="exercises\ex04_Factories.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
         <CallTarget Targets="ex01_ConsoleService;ex02_WeatherReader;ex03_DbContextFactory;ex04_Factories"/>
