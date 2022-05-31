@@ -12,6 +12,9 @@
         <Projects Include="exercises\ex03_DbContextFactory.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="exercises\ex04_Factories.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -38,14 +41,15 @@
     <Target Name="ex02_WeatherReader:Make">
         <MSBuild Projects="exercises\ex02_WeatherReader.dproj" Targets="Make"/>
     </Target>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="ex01_ConsoleService;ex02_WeatherReader;ex03_DbContextFactory"/>
+        <CallTarget Targets="ex01_ConsoleService;ex02_WeatherReader;ex03_DbContextFactory;ex04_Factories"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="ex01_ConsoleService:Clean;ex02_WeatherReader:Clean;ex03_DbContextFactory:Clean"/>
+        <CallTarget Targets="ex01_ConsoleService:Clean;ex02_WeatherReader:Clean;ex03_DbContextFactory:Clean;ex04_Factories:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="ex01_ConsoleService:Make;ex02_WeatherReader:Make;ex03_DbContextFactory:Make"/>
+        <CallTarget Targets="ex01_ConsoleService:Make;ex02_WeatherReader:Make;ex03_DbContextFactory:Make;ex04_Factories:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
