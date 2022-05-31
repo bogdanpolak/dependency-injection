@@ -100,7 +100,6 @@ __recovery/
 # ########## Misc Files
 
 TestInsightSettings.ini
-*.groupproj
 .vscode
 src-concept-helpers
 *Icon.ico
