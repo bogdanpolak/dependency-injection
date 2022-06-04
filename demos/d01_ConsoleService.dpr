@@ -6,14 +6,23 @@
 uses
   System.Classes,
   System.SysUtils,
+  System.DateUtils,
   System.StrUtils,
   Spring.Container,
-  Spring.Services;
+  Spring.Container.Common,
+  Spring.Services,
+  Winapi.Windows;
 
 type
+  ILogger = interface(IInterface)
+    ['{115927AB-1245-4FD2-98A0-BB0326D999C3}']
+    procedure Error(const msg: string);
+    procedure Info(const msg: string);
+  end;
+
   IConsole = interface(IInterface)
     ['{A41DBC10-DF86-4414-867B-A5AC905C8BC8}']
-    procedure Log(const aMsg: String);
+    procedure Write(const aMsg: String);
   end;
 
   ISomeService = interface(IInterface)
@@ -21,14 +30,23 @@ type
     procedure Execute();
   end;
 
+type
+  TLogger = class(TInterfacedObject, ILogger)
+  public
+    procedure Error(const msg: string);
+    procedure Info(const msg: string);
+  end;
+
   TStandardConsole = class(TInterfacedObject, IConsole)
-    procedure Log(const aMsg: String);
+    procedure Write(const aMsg: String);
   end;
 
   TSomeService = class(TInterfacedObject, ISomeService)
   private
     fConsole: IConsole;
     fConfiguration: TStringList;
+    [Inject]
+    fLogger: ILogger;
   public
     constructor Create(
       const aConsole: IConsole;
@@ -47,9 +65,37 @@ type
     procedure Run();
   end;
 
-procedure TStandardConsole.Log(const aMsg: String);
+  { TLogger }
+
+procedure TLogger.Error(const msg: string);
+var
+  consoleOut: THandle;
+  screenBufferInfo: TConsoleScreenBufferInfo;
 begin
-  Writeln(aMsg);
+  consoleOut := TTextRec(Output).Handle;
+  GetConsoleScreenBufferInfo(consoleOut, screenBufferInfo);
+  SetConsoleTextAttribute(consoleOut, FOREGROUND_INTENSITY or FOREGROUND_RED);
+  writeln(Format('[%s] ERROR: %s', [DateToISO8601(Now), msg]));
+  SetConsoleTextAttribute(consoleOut, screenBufferInfo.wAttributes);
+end;
+
+procedure TLogger.Info(const msg: string);
+var
+  consoleOut: THandle;
+  screenBufferInfo: TConsoleScreenBufferInfo;
+begin
+  consoleOut := TTextRec(Output).Handle;
+  GetConsoleScreenBufferInfo(consoleOut, screenBufferInfo);
+  SetConsoleTextAttribute(consoleOut, FOREGROUND_INTENSITY or FOREGROUND_BLUE);
+  writeln(Format('[%s] Info: %s', [DateToISO8601(Now), msg]));
+  SetConsoleTextAttribute(consoleOut, screenBufferInfo.wAttributes);
+end;
+
+{ TStandardConsole }
+
+procedure TStandardConsole.Write(const aMsg: String);
+begin
+  writeln(aMsg);
 end;
 
 { TSomeService }
@@ -64,7 +110,9 @@ end;
 
 procedure TSomeService.Execute;
 begin
-  fConsole.Log('Theme:' + fConfiguration.Values['Theme']);
+  fConsole.Write('Theme:' + fConfiguration.Values['Theme']);
+  if Assigned(fLogger) then
+    fLogger.Error('Some error');
 end;
 
 { TApplication }
@@ -79,9 +127,9 @@ end;
 
 procedure TApplication.Run;
 begin
-  Writeln(IfThen(fConsole is TStandardConsole,
+  writeln(IfThen(fConsole is TStandardConsole,
     'Console service implementation: TStandardConsole'));
-  fConsole.Log('Hello Dependency Injection!');
+  fConsole.Write('Hello Dependency Injection!');
   fSomeService.Execute;
 end;
 
@@ -92,6 +140,7 @@ var
   app: TApplication;
   locator: IServiceLocator;
 begin
+  GlobalContainer.RegisterType<ILogger, TLogger>();
   GlobalContainer.RegisterType<IConsole, TStandardConsole>();
   GlobalContainer.RegisterType<ISomeService, TSomeService>().DelegateTo(
     function(): TSomeService
@@ -125,7 +174,7 @@ begin
     end;
   except
     on E: Exception do
-      Writeln(E.ClassName, ': ', E.Message);
+      writeln(E.ClassName, ': ', E.Message);
   end;
 
 end.
