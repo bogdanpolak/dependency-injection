@@ -15,6 +15,9 @@
         <Projects Include="exercises\ex04_Factories.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="exercises\ex05_LazyService.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -59,14 +62,23 @@
     <Target Name="ex04_Factories:Make">
         <MSBuild Projects="exercises\ex04_Factories.dproj" Targets="Make"/>
     </Target>
+    <Target Name="ex05_LazyService">
+        <MSBuild Projects="exercises\ex05_LazyService.dproj"/>
+    </Target>
+    <Target Name="ex05_LazyService:Clean">
+        <MSBuild Projects="exercises\ex05_LazyService.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ex05_LazyService:Make">
+        <MSBuild Projects="exercises\ex05_LazyService.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="ex01_ConsoleService;ex02_WeatherReader;ex03_DbContextFactory;ex04_Factories"/>
+        <CallTarget Targets="ex01_ConsoleService;ex02_WeatherReader;ex03_DbContextFactory;ex04_Factories;ex05_LazyService"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="ex01_ConsoleService:Clean;ex02_WeatherReader:Clean;ex03_DbContextFactory:Clean;ex04_Factories:Clean"/>
+        <CallTarget Targets="ex01_ConsoleService:Clean;ex02_WeatherReader:Clean;ex03_DbContextFactory:Clean;ex04_Factories:Clean;ex05_LazyService:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="ex01_ConsoleService:Make;ex02_WeatherReader:Make;ex03_DbContextFactory:Make;ex04_Factories:Make"/>
+        <CallTarget Targets="ex01_ConsoleService:Make;ex02_WeatherReader:Make;ex03_DbContextFactory:Make;ex04_Factories:Make;ex05_LazyService:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
