@@ -1,4 +1,4 @@
-﻿program ex01_ConsoleService;
+﻿program d01_ConsoleService;
 
 {$APPTYPE CONSOLE}
 {$R *.res}

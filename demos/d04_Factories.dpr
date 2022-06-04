@@ -1,4 +1,4 @@
-﻿program ex04_Factories;
+﻿program d04_Factories;
 
 // https://delphisorcery.blogspot.com/search?q=Dependency+Injection
 

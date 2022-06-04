@@ -1,4 +1,4 @@
-﻿program ex03_DbContextFactory;
+﻿program d03_DbContextFactory;
 
 {$APPTYPE CONSOLE}
 {$R *.res}

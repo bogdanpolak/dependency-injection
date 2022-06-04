@@ -1,4 +1,4 @@
-﻿program ex02_WeatherReader;
+﻿program d02_WeatherReader;
 
 {$APPTYPE CONSOLE}
 {$R *.res}

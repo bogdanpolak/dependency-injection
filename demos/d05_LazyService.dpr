@@ -1,4 +1,4 @@
-﻿program ex05_LazyService;
+﻿program d05_LazyService;
 
 {$APPTYPE CONSOLE}
 
