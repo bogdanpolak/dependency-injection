@@ -138,7 +138,6 @@ end;
 procedure RunDemo(const aConfiguration: TStringList);
 var
   app: TApplication;
-  locator: IServiceLocator;
 begin
   GlobalContainer.RegisterType<ILogger, TLogger>();
   GlobalContainer.RegisterType<IConsole, TStandardConsole>();
