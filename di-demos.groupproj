@@ -1,0 +1,84 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{0D8EFDCA-EB1B-4DA0-9BD5-FBB29DD9F464}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="demos\d01_ConsoleService.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="demos\d02_WeatherReader.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="demos\d03_DbContextFactory.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="demos\d04_LazyService.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="demos\d05_Factories.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="d01_ConsoleService">
+        <MSBuild Projects="demos\d01_ConsoleService.dproj"/>
+    </Target>
+    <Target Name="d01_ConsoleService:Clean">
+        <MSBuild Projects="demos\d01_ConsoleService.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="d01_ConsoleService:Make">
+        <MSBuild Projects="demos\d01_ConsoleService.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="d02_WeatherReader">
+        <MSBuild Projects="demos\d02_WeatherReader.dproj"/>
+    </Target>
+    <Target Name="d02_WeatherReader:Clean">
+        <MSBuild Projects="demos\d02_WeatherReader.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="d02_WeatherReader:Make">
+        <MSBuild Projects="demos\d02_WeatherReader.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="d03_DbContextFactory">
+        <MSBuild Projects="demos\d03_DbContextFactory.dproj"/>
+    </Target>
+    <Target Name="d03_DbContextFactory:Clean">
+        <MSBuild Projects="demos\d03_DbContextFactory.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="d03_DbContextFactory:Make">
+        <MSBuild Projects="demos\d03_DbContextFactory.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="d04_LazyService">
+        <MSBuild Projects="demos\d04_LazyService.dproj"/>
+    </Target>
+    <Target Name="d04_LazyService:Clean">
+        <MSBuild Projects="demos\d04_LazyService.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="d04_LazyService:Make">
+        <MSBuild Projects="demos\d04_LazyService.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="d05_Factories">
+        <MSBuild Projects="demos\d05_Factories.dproj"/>
+    </Target>
+    <Target Name="d05_Factories:Clean">
+        <MSBuild Projects="demos\d05_Factories.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="d05_Factories:Make">
+        <MSBuild Projects="demos\d05_Factories.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="d01_ConsoleService;d02_WeatherReader;d03_DbContextFactory;d04_LazyService;d05_Factories"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="d01_ConsoleService:Clean;d02_WeatherReader:Clean;d03_DbContextFactory:Clean;d04_LazyService:Clean;d05_Factories:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="d01_ConsoleService:Make;d02_WeatherReader:Make;d03_DbContextFactory:Make;d04_LazyService:Make;d05_Factories:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

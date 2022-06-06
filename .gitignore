@@ -5,8 +5,7 @@
 # ########## Delphi project file
 # (*.dproj) Delphi Project file
 # (*.cbproj) C++Builder Project file
-
-*.dproj
+# *.dproj
 
 # ########## Resource file
 # (*.rc, *.res) Compiled and uncompiled resource files
