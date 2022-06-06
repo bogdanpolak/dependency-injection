@@ -10,9 +10,6 @@ uses
   Spring.Container;
 
 type
-  {$M+} Func<Res> = reference to function (): Res;  {$M-}
-  {$M+} Func<P1,Res> = reference to function (Value: P1): Res; {$M-}
-
   IExampleService = interface
     ['{9722C609-5444-4054-B544-24D30DE8B3B3}']
   end;
