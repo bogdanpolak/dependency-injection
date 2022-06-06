@@ -11,6 +11,8 @@ uses
   Spring.Container.Common,
   Spring;
 
+{$M+}
+
 type
   IMainService = interface
     ['{333CAFBE-E9C7-4F1C-9ECA-5F070523007E}']
@@ -23,11 +25,14 @@ type
     procedure ExecuteSql(const aSql: string);
   end;
 
+type
   TMainService = class(TInterfacedObject, IMainService)
   private
-    fConnectionFactory: IFactory<IDbConnection>;
+    fConnectionFactory: IFactory<string, IDbConnection>;
+    fToken: string;
   public
-    constructor Create(const aConnectionFactory: IFactory<IDbConnection>);
+    constructor Create(const aConnectionFactory
+      : IFactory<string, IDbConnection>);
     procedure Connect(const aToken: string);
     procedure Run();
   end;
@@ -36,42 +41,41 @@ type
   private
     fToken: string;
   public
-    constructor Create();  // const aToken: string
+    constructor Create(const aToken: string);
     procedure ExecuteSql(const aSql: string);
   end;
 
-  TGlobalToken = class
-  class var
-    Value: string;
-  end;
-
+{$M-}
   { ---------------------------------------------------------- }
   { TMainService }
 
-procedure TMainService.Connect(const aToken: string);
-begin
-  TGlobalToken.Value := aToken;
-end;
-
-constructor TMainService.Create(const aConnectionFactory: IFactory<IDbConnection>);
+constructor TMainService.Create(const aConnectionFactory
+  : IFactory<string, IDbConnection>);
 begin
   fConnectionFactory := aConnectionFactory;
+end;
+
+procedure TMainService.Connect(const aToken: string);
+begin
+  fToken := aToken;
 end;
 
 procedure TMainService.Run;
 var
   connection: IDbConnection;
+  aToken: string;
 begin
-  connection := fConnectionFactory();
+  aToken := fToken;
+  connection := fConnectionFactory(aToken);
   connection.ExecuteSql('SELECT * FROM table');
 end;
 
 { ---------------------------------------------------------- }
 { TDbConnection }
 
-constructor TDbConnection.Create();
+constructor TDbConnection.Create(const aToken: string);
 begin
-  fToken := TGlobalToken.Value;
+  fToken := aToken;
   writeln(Format('1. Connect to SQL database usnig token "%s"', [fToken]));
 end;
 
@@ -88,12 +92,11 @@ var
 begin
   GlobalContainer.RegisterType<IMainService, TMainService>();
   GlobalContainer.RegisterType<IDbConnection, TDbConnection>();
-  GlobalContainer.RegisterFactory<IFactory<IDbConnection>>();
+  GlobalContainer.RegisterFactory < IFactory < string, IDbConnection >> ();
   GlobalContainer.Build;
   mainService := GlobalContainer.Resolve<IMainService>();
   mainService.Connect('F8188F61-5A7F');
   mainService.Run();
-  readln;
 end;
 
 begin
