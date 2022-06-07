@@ -18,6 +18,9 @@
         <Projects Include="demos\d05_Factories.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="demos\d06_ActivatorExtension.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -71,14 +74,23 @@
     <Target Name="d05_Factories:Make">
         <MSBuild Projects="demos\d05_Factories.dproj" Targets="Make"/>
     </Target>
+    <Target Name="d06_ActivatorExtension">
+        <MSBuild Projects="demos\d06_ActivatorExtension.dproj"/>
+    </Target>
+    <Target Name="d06_ActivatorExtension:Clean">
+        <MSBuild Projects="demos\d06_ActivatorExtension.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="d06_ActivatorExtension:Make">
+        <MSBuild Projects="demos\d06_ActivatorExtension.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="d01_ConsoleService;d02_WeatherReader;d03_DbContextFactory;d04_LazyService;d05_Factories"/>
+        <CallTarget Targets="d01_ConsoleService;d02_WeatherReader;d03_DbContextFactory;d04_LazyService;d05_Factories;d06_ActivatorExtension"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="d01_ConsoleService:Clean;d02_WeatherReader:Clean;d03_DbContextFactory:Clean;d04_LazyService:Clean;d05_Factories:Clean"/>
+        <CallTarget Targets="d01_ConsoleService:Clean;d02_WeatherReader:Clean;d03_DbContextFactory:Clean;d04_LazyService:Clean;d05_Factories:Clean;d06_ActivatorExtension:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="d01_ConsoleService:Make;d02_WeatherReader:Make;d03_DbContextFactory:Make;d04_LazyService:Make;d05_Factories:Make"/>
+        <CallTarget Targets="d01_ConsoleService:Make;d02_WeatherReader:Make;d03_DbContextFactory:Make;d04_LazyService:Make;d05_Factories:Make;d06_ActivatorExtension:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
