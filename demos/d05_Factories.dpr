@@ -11,8 +11,6 @@ uses
   Spring.Container.Common,
   Spring;
 
-{$M+}
-
 type
   IMainService = interface
     ['{333CAFBE-E9C7-4F1C-9ECA-5F070523007E}']
@@ -25,14 +23,18 @@ type
     procedure ExecuteSql(const aSql: string);
   end;
 
+{$M+}
+  TConnectionFactory = reference to function(const aToken: string)
+    : IDbConnection;
+{$M-}
+
 type
   TMainService = class(TInterfacedObject, IMainService)
   private
-    fConnectionFactory: IFactory<string, IDbConnection>;
+    fConnectionFactory: TConnectionFactory;
     fToken: string;
   public
-    constructor Create(const aConnectionFactory
-      : IFactory<string, IDbConnection>);
+    constructor Create(const aConnectionFactory: TConnectionFactory);
     procedure Connect(const aToken: string);
     procedure Run();
   end;
@@ -45,12 +47,10 @@ type
     procedure ExecuteSql(const aSql: string);
   end;
 
-{$M-}
-  { ---------------------------------------------------------- }
-  { TMainService }
+{ --------------------------------------------------------------- }
+{ TMainService }
 
-constructor TMainService.Create(const aConnectionFactory
-  : IFactory<string, IDbConnection>);
+constructor TMainService.Create(const aConnectionFactory: TConnectionFactory);
 begin
   fConnectionFactory := aConnectionFactory;
 end;
@@ -70,7 +70,7 @@ begin
   connection.ExecuteSql('SELECT * FROM table');
 end;
 
-{ ---------------------------------------------------------- }
+{ --------------------------------------------------------------- }
 { TDbConnection }
 
 constructor TDbConnection.Create(const aToken: string);
@@ -84,7 +84,7 @@ begin
   writeln(Format('2. Executed SQL: "%s" using token "%s"', [aSql, fToken]));
 end;
 
-{ ---------------------------------------------------------- }
+{ --------------------------------------------------------------- }
 
 procedure RunDemo();
 var
@@ -92,7 +92,7 @@ var
 begin
   GlobalContainer.RegisterType<IMainService, TMainService>();
   GlobalContainer.RegisterType<IDbConnection, TDbConnection>();
-  GlobalContainer.RegisterFactory < IFactory < string, IDbConnection >> ();
+  GlobalContainer.RegisterType<TConnectionFactory>().AsFactory();
   GlobalContainer.Build;
   mainService := GlobalContainer.Resolve<IMainService>();
   mainService.Connect('F8188F61-5A7F');
@@ -106,5 +106,4 @@ begin
     on E: Exception do
       writeln(E.ClassName, ': ', E.Message);
   end;
-
 end.
