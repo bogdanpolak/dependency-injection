@@ -8,9 +8,8 @@ uses
   Spring.Container.Common,
   Spring;
 
-{$M+}
-
 type
+{$M+}
   IMainService = interface
     ['{333CAFBE-E9C7-4F1C-9ECA-5F070523007E}']
     procedure Connect(const aToken: string);
@@ -21,6 +20,7 @@ type
     ['{6DCC3C50-A008-437C-8821-7A637DBB9BBA}']
     procedure ExecuteSql(const aSql: string);
   end;
+{$M-}
 
 type
   TMainService = class(TInterfacedObject, IMainService)
@@ -43,8 +43,6 @@ type
   end;
 
 procedure RunDemo();
-
-{$M-}
 
 implementation
 
@@ -90,7 +88,7 @@ var
 begin
   GlobalContainer.RegisterType<IMainService, TMainService>();
   GlobalContainer.RegisterType<IDbConnection, TDbConnection>();
-  GlobalContainer.RegisterFactory< IFactory < string, IDbConnection >> ();
+  GlobalContainer.RegisterFactory < IFactory < string, IDbConnection >> ();
   GlobalContainer.Build;
   mainService := GlobalContainer.Resolve<IMainService>();
   mainService.Connect('F8188F61-5A7F');
